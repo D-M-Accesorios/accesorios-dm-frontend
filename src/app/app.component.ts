@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterOutlet } from '@angular/router'; // Asegúrate de que esté esta línea
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet], // Y que esté agregado aquí
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })
