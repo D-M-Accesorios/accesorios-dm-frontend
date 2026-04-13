@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'; // IMPORTANTE: Agregamos OnInit aquí
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router'; // IMPORTANTE: Para que el icono navegue
-import { CartService } from '../../services/cart.service';
+import { CartService, } from '../../services/cart.service';
 
 @Component({
   selector: 'app-tienda',
@@ -22,8 +22,8 @@ export class TiendaComponent implements OnInit {
     });
   }
 
-  agregarAlCarrito(nombre: string, precio: number, imagen: string) {
-    const producto = { nombre, precio, imagen };
+  agregarAlCarrito(name: string, price: number, imagen: string) {
+    const producto = { name, price, imagen };
     this.cartService.addToCart(producto);
   }
 }

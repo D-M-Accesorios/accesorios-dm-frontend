@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { CartService } from '../../services/cart.service';
+import { CartService, CartItem } from '../../services/cart.service';
 import { RouterLink } from '@angular/router';
 
 @Component({
@@ -11,32 +11,25 @@ import { RouterLink } from '@angular/router';
   styleUrl: './cart.component.css'
 })
 export class CartComponent implements OnInit {
-  productos: any[] = [];
+
+  productos: CartItem[] = [];
   total: number = 0;
 
   constructor(private cartService: CartService) {}
 
   ngOnInit(): void {
-    this.actualizarCarrito();
+  this.cartService.cart$.subscribe(data => {
+    console.log("CARRITO RECIBIDO:", data); // 👈 DEBUG
+    this.productos = data;
+    this.total = this.cartService.getTotal();
+  });
+}
+
+  cambiarCantidad(item: CartItem, cambio: number): void {
+    this.cartService.updateQuantity(item, cambio);
   }
 
-  actualizarCarrito(): void {
-    this.productos = this.cartService.getProducts();
-    this.total = this.cartService.calculateTotal();
-  }
-
-  cambiarCantidad(item: any, cambio: number): void {
-    if (item.cantidad + cambio >= 1) {
-      item.cantidad += cambio;
-      this.total = this.cartService.calculateTotal();
-    }
-  }
-
-  eliminar(item: any): void {
-    const index = this.productos.indexOf(item);
-    if (index > -1) {
-      this.productos.splice(index, 1);
-      this.total = this.cartService.calculateTotal();
-    }
+  eliminar(item: CartItem): void {
+    this.cartService.removeFromCart(item);
   }
 }
