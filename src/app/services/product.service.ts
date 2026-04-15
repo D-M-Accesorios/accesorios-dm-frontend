@@ -1,12 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface Product {
   id?: number;
   name: string;
   price: number;
-  stock: number;
+  stock?: number;
+  imageUrl?: string;
+  category?: string;
 }
 
 @Injectable({
@@ -19,22 +22,39 @@ export class ProductService {
   constructor(private http: HttpClient) {}
 
   getProducts(): Observable<Product[]> {
-    return this.http.get<Product[]>(this.apiUrl);
+    return this.http.get<Product[]>(this.apiUrl).pipe(
+      catchError(() => {
+        return of(this.getMockProducts());
+      })
+    );
   }
 
-  getProductById(id: number): Observable<Product> {
-    return this.http.get<Product>(`${this.apiUrl}/${id}`);
-  }
-
-  createProduct(product: Product): Observable<Product> {
-    return this.http.post<Product>(this.apiUrl, product);
-  }
-
-  updateProduct(id: number, product: Product): Observable<Product> {
-    return this.http.put<Product>(`${this.apiUrl}/${id}`, product);
-  }
-
-  deleteProduct(id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  private getMockProducts(): Product[] {
+    return [
+      {
+      name: 'SET AMOR ETERNO',
+      price: 65000,
+      imageUrl: '/collar.png',
+      category: 'COLLARES'
+      },
+      {
+      name: 'SET DORADO PERLA',
+      price: 85000,
+      imageUrl: '/collar1.png',
+      category: 'COLLARES'
+      },
+      {
+        name: 'PULSERA ELEGANTE',
+        price: 30000,
+        imageUrl: '/pulsera.png',
+        category: 'PULSERAS'
+      },
+      {
+        name: 'ANILLO MINIMAL',
+        price: 20000,
+        imageUrl: '/anillo.png',
+        category: 'ANILLOS'
+      }
+    ];
   }
 }

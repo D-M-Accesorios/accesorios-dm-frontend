@@ -13,9 +13,11 @@
     <div class="d-flex align-items-center">
 
       <!-- Imagen genérica -->
-      <img src="https://via.placeholder.com/80"
-           class="rounded-3"
-           style="width: 80px; height: 80px; object-fit: cover;">
+      <img
+  [src]="item.imageUrl || '/collar.png'"
+  class="rounded-3"
+  style="width: 80px; height: 80px; object-fit: cover;"
+  alt="Producto">
 
       <div class="ms-3 flex-grow-1">
         <h6 class="fw-bold mb-1">{{ item.name }}</h6>

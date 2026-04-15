@@ -1,11 +1,14 @@
 <div class="container-fluid p-0 pb-5" style="background-color: #f8f9fa; min-height: 100vh;">
 
+  <!-- HEADER -->
   <header class="bg-black text-white p-3 d-flex justify-content-between align-items-center rounded-bottom-5 shadow">
     <div class="d-flex align-items-center">
       <img src="logo.jpeg" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #c19a40;" class="me-2">
       <div>
         <h6 class="mb-0 fw-bold">Accesorios DM</h6>
-        <p class="small mb-0 text-secondary" style="font-size: 0.7rem;">Nunca subestimes el poder de un buen accesorio</p>
+        <p class="small mb-0 text-secondary" style="font-size: 0.7rem;">
+          Nunca subestimes el poder de un buen accesorio
+        </p>
       </div>
     </div>
 
@@ -14,6 +17,7 @@
         <i class="bi bi-bell text-white"></i>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">2</span>
       </div>
+
       <div [routerLink]="['/cart']" class="position-relative bg-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; cursor: pointer;">
         <i class="bi bi-cart text-white"></i>
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">
@@ -23,85 +27,138 @@
     </div>
   </header>
 
+  <!-- CONTENIDO -->
   <div class="px-3 mt-3">
+
+    <!-- BUSCADOR -->
     <div class="input-group mb-4 shadow-sm rounded-pill overflow-hidden bg-white px-2">
-      <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
+      <span class="input-group-text bg-white border-0">
+        <i class="bi bi-search text-muted"></i>
+      </span>
       <input type="text" class="form-control border-0 p-2" placeholder="Buscar accesorios..." style="box-shadow: none;">
     </div>
 
+    <!-- CATEGORÍAS -->
     <div class="bg-white p-3 rounded-4 shadow-sm mb-4">
       <h6 class="fw-bold mb-3">Categorías</h6>
-      <div class="row g-2">
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">ARETES</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">COLLARES</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">PULSERAS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">ANILLOS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">BOLSOS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-muted border py-2">MÁS</button></div>
-      </div>
+     <div class="row g-2">
+
+  <div class="col-4">
+    <button
+      class="btn btn-sm w-100 fw-bold text-white border-0 py-2"
+      style="background-color: #c19a40;"
+      (click)="filtrarPorCategoria('COLLARES')">
+      COLLARES
+    </button>
+  </div>
+
+  <div class="col-4">
+    <button
+      class="btn btn-sm w-100 fw-bold text-white border-0 py-2"
+      style="background-color: #c19a40;"
+      (click)="filtrarPorCategoria('PULSERAS')">
+      PULSERAS
+    </button>
+  </div>
+
+  <div class="col-4">
+    <button
+      class="btn btn-sm w-100 fw-bold text-white border-0 py-2"
+      style="background-color: #c19a40;"
+      (click)="filtrarPorCategoria('ANILLOS')">
+      ANILLOS
+    </button>
+  </div>
+
+  <div class="col-4">
+    <button
+      class="btn btn-sm w-100 fw-bold text-white border-0 py-2"
+      style="background-color: #000;"
+      (click)="mostrarTodos()">
+      TODOS
+    </button>
+  </div>
+</div>
     </div>
 
-    <h6 class="fw-bold d-flex justify-content-between align-items-center">Productos Destacados <span style="color: #c19a40; font-size: 0.8rem; cursor: pointer;">Ver todos</span></h6>
+    <!-- PRODUCTOS -->
+    <h6 class="fw-bold d-flex justify-content-between align-items-center">
+      Productos
+      <span style="color: #c19a40; font-size: 0.8rem;">Mock / API</span>
+    </h6>
+
     <div class="row g-3">
-      <div class="col-6">
+
+      <div class="col-6" *ngFor="let producto of productosFiltrados">
+
         <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
+
+          <!-- IMAGEN -->
           <div class="position-relative">
-            <span class="position-absolute top-0 start-0 badge rounded-1 m-2" style="background-color: #c19a40; font-size: 0.6rem;">NUEVO</span>
-            <img src="img1.png" class="card-img-top rounded-4" style="height: 140px; object-fit: cover;">
-          </div>
+            <span class="position-absolute top-0 start-0 badge rounded-1 m-2"
+                  style="background-color: #c19a40; font-size: 0.6rem;">
+              NUEVO
+            </span>
+
+
+            <img [src]="producto.imageUrl || '/collarn.png'"
+              class="card-img-top">
+            </div>
+
+          <!-- INFO -->
           <div class="card-body p-2 text-center">
-            <small class="text-muted d-block" style="font-size: 0.6rem;">COLLARES</small>
-            <span class="fw-bold d-block mb-1" style="font-size: 0.75rem;">SET AMOR ETERNO</span>
-            <span class="fw-bold d-block mb-2" style="color: #c19a40;">$ 65.000</span>
-            <button class="btn btn-sm w-100 fw-bold text-white border-0"
-                    style="background-color: #c19a40;"
-                    (click)="agregarAlCarrito('SET AMOR ETERNO', 65000, 'assets/collar1.jpg')">
+
+            <span class="fw-bold d-block mb-1" style="font-size: 0.75rem;">
+              {{ producto.name }}
+            </span>
+
+            <span class="fw-bold d-block mb-2" style="color: #c19a40;">
+              $ {{ producto.price | number }}
+            </span>
+
+            <button
+              class="btn btn-sm w-100 fw-bold text-white border-0"
+              style="background-color: #c19a40;"
+              (click)="agregarAlCarrito(producto)">
               Añadir al carrito
             </button>
+
           </div>
+
         </div>
+
       </div>
 
-      <div class="col-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
-          <div class="position-relative">
-            <span class="position-absolute top-0 start-0 badge rounded-1 m-2" style="background-color: #c19a40; font-size: 0.6rem;">NUEVO</span>
-            <img src="img2.png" class="card-img-top rounded-4" style="height: 140px; object-fit: cover;">
-          </div>
-          <div class="card-body p-2 text-center">
-            <small class="text-muted d-block" style="font-size: 0.6rem;">SETS</small>
-            <span class="fw-bold d-block mb-1" style="font-size: 0.75rem;">SET DORADO PERLA</span>
-            <span class="fw-bold d-block mb-2" style="color: #c19a40;">$ 85.000</span>
-            <button class="btn btn-sm w-100 fw-bold text-white border-0"
-                    style="background-color: #c19a40;"
-                    (click)="agregarAlCarrito('SET DORADO PERLA', 85000, 'assets/collar2.jpg')">
-              Añadir al carrito
-            </button>
-          </div>
-        </div>
-      </div>
     </div>
+
   </div>
 
+  <!-- NAVBAR -->
   <nav class="fixed-bottom bg-white border-top d-flex justify-content-around align-items-center py-2 shadow-lg rounded-top-4">
-     <div class="text-center" [routerLink]="['/inicio']" style="color: #c19a40; cursor: pointer;">
-    <i class="bi bi-house-door-fill fs-4"></i>
-    <div style="font-size: 0.6rem; font-weight: bold;">INICIO</div>
-  </div>
+    <div class="text-center" [routerLink]="['/inicio']" style="color: #c19a40; cursor: pointer;">
+      <i class="bi bi-house-door-fill fs-4"></i>
+      <div style="font-size: 0.6rem; font-weight: bold;">INICIO</div>
+    </div>
+
     <div class="text-center text-muted" [routerLink]="['/cart']">
       <div class="position-relative d-inline-block">
         <i class="bi bi-cart fs-4"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.5rem;">{{ totalItems }}</span>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.5rem;">
+          {{ totalItems }}
+        </span>
       </div>
       <div style="font-size: 0.6rem;">CARRITO</div>
     </div>
+
     <div class="text-center text-muted">
       <i class="bi bi-person fs-4"></i>
       <div style="font-size: 0.6rem;">PERFIL</div>
     </div>
+
     <div class="text-center text-muted">
       <i class="bi bi-info-circle fs-4"></i>
       <div style="font-size: 0.6rem;">INFO</div>
     </div>
   </nav>
+
 </div>
