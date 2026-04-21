@@ -11,25 +11,26 @@ import { RouterLink } from '@angular/router';
   styleUrl: './cart.component.css'
 })
 export class CartComponent implements OnInit {
-
   productos: CartItem[] = [];
   total: number = 0;
 
   constructor(private cartService: CartService) {}
 
   ngOnInit(): void {
-  this.cartService.cart$.subscribe(data => {
-    console.log("CARRITO RECIBIDO:", data); // 👈 DEBUG
-    this.productos = data;
-    this.total = this.cartService.getTotal();
-  });
-}
+    this.cartService.cart$.subscribe(data => {
+      console.log('CARRITO RECIBIDO:', data);
+      this.productos = data;
+      this.total = this.cartService.getTotal();
+    });
+  }
 
   cambiarCantidad(item: CartItem, cambio: number): void {
     this.cartService.updateQuantity(item, cambio);
+    this.total = this.cartService.getTotal();
   }
 
   eliminar(item: CartItem): void {
     this.cartService.removeFromCart(item);
+    this.total = this.cartService.getTotal();
   }
 }
