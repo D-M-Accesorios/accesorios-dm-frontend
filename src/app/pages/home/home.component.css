@@ -1,0 +1,80 @@
+/* Estilos específicos para la Card de Login */
+.login-card {
+  max-width: 480px; /* Un poco más ancho para desktop */
+  width: 100%;
+  border: none;
+  border-radius: 15px; /* Bordes redondeados más pronunciados */
+  border-top: 6px solid #c19a40; /* El borde dorado distintivo de tu diseño */
+}
+
+/* Estilo para el logo en la card */
+/* Usa guiones, no puntos para separar nombres de clases */
+.dm-logo-img {
+  width: 150px;       /* Tamaño ideal para que se vea como en tu diseño */
+  height: 150px;
+  object-fit: cover;  /* Mantiene la proporción de la imagen */
+  border: 3px solid #c19a40 !important; /* Borde dorado directo */
+  border-radius: 50%; /* Asegura que sea un círculo perfecto */
+  margin-bottom: 15px;
+}
+
+/* Tipografía de títulos */
+.dm-title {
+  color:#c19a40;
+  letter-spacing: 1px;
+}
+
+.dm-slogan {
+  font-size: 0.9rem;
+  color: #777;
+}
+
+/* Botón principal */
+.dm-btn-main {
+  font-size: 1rem;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 6px rgba(193, 154, 64, 0.2); /* Sombra suave dorada */
+  transition: all 0.3s ease;
+}
+
+.dm-btn-main:hover {
+  transform: translateY(-1px); /* Pequeño efecto de levantamiento */
+  box-shadow: 0 6px 8px rgba(193, 154, 64, 0.3);
+  background-color: #a68336 !important; /* Un dorado un poco más oscuro para cuando pases el mouse */
+  border-color: #a68336 !important;
+}
+
+.dm-btn-main {
+    background-color: #c19a40 !important; /* El dorado de tu logo */
+    border-color: #c19a40 !important;
+    color: white !important; /* Color del texto */
+}
+
+.dm-link-gold {
+    color: #c19a40 !important;
+    transition: color 0.3s ease;
+}
+
+.dm-link-gold:hover {
+    color: #a68336 !important; /* Un tono más oscuro al pasar el mouse */
+    text-decoration: underline !important;
+}
+
+/* Estilo para el botón hueco de Crear Cuenta */
+.btn-outline-dm-gold {
+  color: #c19a40 !important;
+  border: 2px solid #c19a40 !important;
+  background-color: transparent !important;
+  transition: all 0.3s ease;
+  border-radius: 8px; /* Bordes suaves como en tu diseño */
+}
+
+.btn-outline-dm-gold:hover {
+  background-color: #c19a40 !important;
+  color: white !important;
+}
+
+/* Ajuste para la línea divisoria */
+hr {
+  opacity: 0.15;
+}
