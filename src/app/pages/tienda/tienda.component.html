@@ -1,81 +1,87 @@
-<div class="container-fluid p-0 pb-5" style="background-color: #f8f9fa; min-height: 100vh;">
-
-  <header class="bg-black text-white p-3 d-flex justify-content-between align-items-center rounded-bottom-5 shadow">
-    <div class="d-flex align-items-center">
-      <img src="logo.jpeg" style="width: 45px; height: 45px; border-radius: 50%; border: 2px solid #c19a40;" class="me-2">
+<div class="container py-4">
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center p-3 rounded-4 bg-black text-white mb-3">
+    <div class="d-flex align-items-center gap-3">
+      <img src="/logo.jpeg" alt="logo" width="48" height="48" class="rounded-circle" />
       <div>
-        <h6 class="mb-0 fw-bold">Accesorios DM</h6>
-        <p class="small mb-0 text-secondary" style="font-size: 0.7rem;">Nunca subestimes el poder de un buen accesorio</p>
+        <h5 class="mb-0">Accesorios DM</h5>
+        <small>"Nunca subestimes el poder de un buen accesorio"</small>
       </div>
     </div>
 
-    <div class="d-flex gap-2">
-      <div class="position-relative bg-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-        <i class="bi bi-bell text-white"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">2</span>
-      </div>
-      <div [routerLink]="['/cart']" class="position-relative bg-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; cursor: pointer;">
-        <i class="bi bi-cart text-white"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.6rem;">
+    <div class="d-flex align-items-center gap-3">
+      <a routerLink="/cart" class="btn btn-dark position-relative">
+        🛒
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark">
           {{ totalItems }}
         </span>
+      </a>
+    </div>
+  </div>
+
+  <!-- Buscador -->
+  <div class="mb-4">
+    <input
+      type="text"
+      class="form-control rounded-pill"
+      placeholder="Buscar accesorios..."
+    />
+  </div>
+
+  <!-- Categorías -->
+  <div class="card border-0 shadow-sm rounded-4 p-3 mb-4">
+    <h5 class="mb-3">Categorías</h5>
+
+    <div class="row g-2">
+      <div class="col-md-4">
+        <button class="btn btn-warning w-100 fw-bold" (click)="filtrarPorCategoria('COLLARES')">
+          COLLARES
+        </button>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-warning w-100 fw-bold" (click)="filtrarPorCategoria('PULSERAS')">
+          PULSERAS
+        </button>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-warning w-100 fw-bold" (click)="filtrarPorCategoria('ANILLOS')">
+          ANILLOS
+        </button>
+      </div>
+      <div class="col-md-4">
+        <button class="btn btn-dark w-100 fw-bold" (click)="mostrarTodos()">
+          TODOS
+        </button>
       </div>
     </div>
-  </header>
+  </div>
 
-  <div class="px-3 mt-3">
-    <div class="input-group mb-4 shadow-sm rounded-pill overflow-hidden bg-white px-2">
-      <span class="input-group-text bg-white border-0"><i class="bi bi-search text-muted"></i></span>
-      <input type="text" class="form-control border-0 p-2" placeholder="Buscar accesorios..." style="box-shadow: none;">
-    </div>
+  <!-- Productos -->
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">Productos</h4>
+    <small class="text-warning fw-bold">Mock / API</small>
+  </div>
 
-    <div class="bg-white p-3 rounded-4 shadow-sm mb-4">
-      <h6 class="fw-bold mb-3">Categorías</h6>
-      <div class="row g-2">
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">ARETES</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">COLLARES</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">PULSERAS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">ANILLOS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-white border-0 py-2" style="background-color: #c19a40;">BOLSOS</button></div>
-        <div class="col-4"><button class="btn btn-sm w-100 fw-bold text-muted border py-2">MÁS</button></div>
-      </div>
-    </div>
+  <div class="row g-4" *ngIf="productosFiltrados.length > 0; else sinProductos">
+    <div class="col-md-4" *ngFor="let producto of productosFiltrados">
+      <div class="card h-100 border-0 shadow-sm rounded-4">
+        <img
+          [src]="producto.imageUrl || '/collar.png'"
+          class="card-img-top rounded-top-4"
+          alt="{{ producto.name }}"
+          style="height: 240px; object-fit: cover;"
+        />
 
-    <h6 class="fw-bold d-flex justify-content-between align-items-center">Productos Destacados <span style="color: #c19a40; font-size: 0.8rem; cursor: pointer;">Ver todos</span></h6>
-    <div class="row g-3">
-      <div class="col-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
-          <div class="position-relative">
-            <span class="position-absolute top-0 start-0 badge rounded-1 m-2" style="background-color: #c19a40; font-size: 0.6rem;">NUEVO</span>
-            <img src="img1.png" class="card-img-top rounded-4" style="height: 140px; object-fit: cover;">
-          </div>
-          <div class="card-body p-2 text-center">
-            <small class="text-muted d-block" style="font-size: 0.6rem;">COLLARES</small>
-            <span class="fw-bold d-block mb-1" style="font-size: 0.75rem;">SET AMOR ETERNO</span>
-            <span class="fw-bold d-block mb-2" style="color: #c19a40;">$ 65.000</span>
-            <button class="btn btn-sm w-100 fw-bold text-white border-0"
-                    style="background-color: #c19a40;"
-                    (click)="agregarAlCarrito('SET AMOR ETERNO', 65000, 'assets/collar1.jpg')">
-              Añadir al carrito
-            </button>
-          </div>
-        </div>
-      </div>
+        <div class="card-body d-flex flex-column">
+          <h5 class="card-title">{{ producto.name }}</h5>
+          <p class="text-muted mb-1">{{ producto.category || 'SIN CATEGORÍA' }}</p>
+          <p class="card-text">{{ producto.description || 'Sin descripción' }}</p>
 
-      <div class="col-6">
-        <div class="card border-0 shadow-sm rounded-4 h-100 p-2">
-          <div class="position-relative">
-            <span class="position-absolute top-0 start-0 badge rounded-1 m-2" style="background-color: #c19a40; font-size: 0.6rem;">NUEVO</span>
-            <img src="img2.png" class="card-img-top rounded-4" style="height: 140px; object-fit: cover;">
-          </div>
-          <div class="card-body p-2 text-center">
-            <small class="text-muted d-block" style="font-size: 0.6rem;">SETS</small>
-            <span class="fw-bold d-block mb-1" style="font-size: 0.75rem;">SET DORADO PERLA</span>
-            <span class="fw-bold d-block mb-2" style="color: #c19a40;">$ 85.000</span>
-            <button class="btn btn-sm w-100 fw-bold text-white border-0"
-                    style="background-color: #c19a40;"
-                    (click)="agregarAlCarrito('SET DORADO PERLA', 85000, 'assets/collar2.jpg')">
-              Añadir al carrito
+          <div class="mt-auto">
+            <h5 class="fw-bold text-warning">$ {{ producto.price | number }}</h5>
+            <button class="btn btn-dark w-100 mt-2" (click)="agregarAlCarrito(producto)">
+              Agregar al carrito
             </button>
           </div>
         </div>
@@ -83,25 +89,9 @@
     </div>
   </div>
 
-  <nav class="fixed-bottom bg-white border-top d-flex justify-content-around align-items-center py-2 shadow-lg rounded-top-4">
-     <div class="text-center" [routerLink]="['/inicio']" style="color: #c19a40; cursor: pointer;">
-    <i class="bi bi-house-door-fill fs-4"></i>
-    <div style="font-size: 0.6rem; font-weight: bold;">INICIO</div>
-  </div>
-    <div class="text-center text-muted" [routerLink]="['/cart']">
-      <div class="position-relative d-inline-block">
-        <i class="bi bi-cart fs-4"></i>
-        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.5rem;">{{ totalItems }}</span>
-      </div>
-      <div style="font-size: 0.6rem;">CARRITO</div>
+  <ng-template #sinProductos>
+    <div class="alert alert-warning rounded-4">
+      No hay productos para mostrar.
     </div>
-    <div class="text-center text-muted">
-      <i class="bi bi-person fs-4"></i>
-      <div style="font-size: 0.6rem;">PERFIL</div>
-    </div>
-    <div class="text-center text-muted">
-      <i class="bi bi-info-circle fs-4"></i>
-      <div style="font-size: 0.6rem;">INFO</div>
-    </div>
-  </nav>
+  </ng-template>
 </div>

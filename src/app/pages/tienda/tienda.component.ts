@@ -1,29 +1,55 @@
-import { Component, OnInit } from '@angular/core'; // IMPORTANTE: Agregamos OnInit aquí
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterLink } from '@angular/router'; // IMPORTANTE: Para que el icono navegue
-import { CartService, } from '../../services/cart.service';
+import { RouterLink } from '@angular/router';
+import { CartService } from '../../services/cart.service';
+import { ProductService, Product } from '../../services/product.service';
 
 @Component({
   selector: 'app-tienda',
   standalone: true,
-  imports: [CommonModule, RouterLink], // Agregamos RouterLink aquí
+  imports: [CommonModule, RouterLink],
   templateUrl: './tienda.component.html',
   styleUrl: './tienda.component.css'
 })
 export class TiendaComponent implements OnInit {
+
+  productos: Product[] = [];
+  productosFiltrados: Product[] = []; // 🔥 NUEVO
   totalItems: number = 0;
 
-  constructor(private cartService: CartService) {}
+  constructor(
+    private cartService: CartService,
+    private productService: ProductService
+  ) {}
 
   ngOnInit(): void {
-    // Escucha el servicio para actualizar el número del icono superior
+
+    // 🔥 Traer productos
+    this.productService.getProducts().subscribe(data => {
+      this.productos = data;
+      this.productosFiltrados = data; // 🔥 mostrar todos al inicio
+    });
+
+    // 🔥 Contador carrito
     this.cartService.cart$.subscribe(productos => {
       this.totalItems = productos.reduce((acc, item) => acc + item.cantidad, 0);
     });
   }
 
-  agregarAlCarrito(name: string, price: number, imagen: string) {
-    const producto = { name, price, imagen };
-    this.cartService.addToCart(producto);
+  // 🔥 FILTRAR POR CATEGORÍA
+  filtrarPorCategoria(categoria: string) {
+    this.productosFiltrados = this.productos.filter(producto =>
+      producto.category?.toLowerCase() === categoria.toLowerCase()
+    );
+  }
+
+  // 🔥 MOSTRAR TODOS
+  mostrarTodos() {
+    this.productosFiltrados = this.productos;
+  }
+
+  // 🔥 AGREGAR AL CARRITO
+  agregarAlCarrito(product: Product) {
+    this.cartService.addToCart(product);
   }
 }
