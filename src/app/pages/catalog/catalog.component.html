@@ -1,0 +1,34 @@
+<section class="catalog-page">
+  <header class="catalog-header">
+    <h1>Catálogo de productos</h1>
+    <p>Explora los accesorios disponibles en nuestra tienda.</p>
+  </header>
+
+  <p *ngIf="isLoading">Cargando productos...</p>
+
+  <p *ngIf="!isLoading && errorMessage" class="error">
+    {{ errorMessage }}
+  </p>
+
+  <p *ngIf="!isLoading && !errorMessage && products.length === 0">
+    No hay productos disponibles por el momento.
+  </p>
+
+  <div class="product-grid" *ngIf="!isLoading && products.length > 0">
+    <article class="product-card" *ngFor="let product of products">
+      <img
+  [src]="product.imageUrl && !product.imageUrl.includes('product-placeholder.png')
+    ? product.imageUrl
+    : 'https://placehold.co/300x200?text=Producto'"
+  [alt]="product.name"
+/>
+
+      <div class="product-info">
+        <h2>{{ product.name }}</h2>
+        <p>{{ product.description }}</p>
+        <strong>${{ product.price }}</strong>
+        <span>Stock: {{ product.stock }}</span>
+      </div>
+    </article>
+  </div>
+</section>
