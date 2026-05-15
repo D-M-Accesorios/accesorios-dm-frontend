@@ -12,7 +12,7 @@ import { ProductFactory } from '../factories/product.factory';
 export class ProductService {
 
   private readonly apiUrl =
-    `${environment.apiBaseUrl}/api/v1/catalog/products`;
+    `${environment.apiBaseUrl}/inventory/productos`
 
   constructor(private readonly http: HttpClient) {}
 
