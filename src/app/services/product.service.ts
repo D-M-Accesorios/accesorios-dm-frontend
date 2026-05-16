@@ -6,13 +6,32 @@ import { environment } from '../../environments/environment';
 import { Product } from '../models/product.model';
 import { ProductFactory } from '../factories/product.factory';
 
+export interface Category {
+  idCategoria: number;
+  nombre: string;
+}
+
+export interface Material {
+  idMaterial: number;
+  nombre: string;
+}
+
+export interface CreateProductRequest {
+  nombre: string;
+  descripcion: string;
+  precio: number;
+  stock: number;
+  categoria: { idCategoria: number };
+  material: { idMaterial: number };
+  estado: boolean;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-
   private readonly apiUrl =
-    `${environment.apiBaseUrl}/inventory/productos`
+    `${environment.apiBaseUrl}/inventory/productos`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -25,13 +44,33 @@ export class ProductService {
       })
     );
   }
+
   getProductById(id: string): Observable<Product | null> {
-  return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-    map((response) => ProductFactory.fromApi(response)),
-    catchError((error) => {
-      console.error('Error al obtener producto:', error);
-      return of(null);
-    })
-  );
-}
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => ProductFactory.fromApi(response)),
+      catchError((error) => {
+        console.error('Error al obtener producto:', error);
+        return of(null);
+      })
+    );
+  }
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(
+      `${environment.apiBaseUrl}/inventory/categorias`
+    );
+  }
+
+  getMaterials(): Observable<Material[]> {
+    return this.http.get<Material[]>(
+      `${environment.apiBaseUrl}/inventory/materiales`
+    );
+  }
+
+  createProduct(product: CreateProductRequest): Observable<any> {
+    return this.http.post(
+      `${environment.apiBaseUrl}/inventory/productos`,
+      product
+    );
+  }
 }
