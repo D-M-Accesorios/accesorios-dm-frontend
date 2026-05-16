@@ -1,0 +1,41 @@
+<section class="detail-page" *ngIf="!isLoading && product">
+
+  <div class="detail-image">
+    <img [src]="imageUrl" [alt]="product.name">
+  </div>
+
+  <div class="detail-info">
+
+    <span class="category">
+      {{ product.category }}
+    </span>
+
+    <h1>{{ product.name }}</h1>
+
+    <p class="description">
+      {{ product.description }}
+    </p>
+
+    <h2 class="price">
+      ${{ product.price }}
+    </h2>
+
+    <p class="stock">
+      Stock disponible: {{ product.stock }}
+    </p>
+
+    <button class="add-button">
+      Agregar al carrito
+    </button>
+
+  </div>
+
+</section>
+
+<p *ngIf="isLoading">
+  Cargando producto...
+</p>
+
+<p *ngIf="!isLoading && errorMessage">
+  {{ errorMessage }}
+</p>
