@@ -1,1 +1,125 @@
-<p>admin works!</p>
+<section class="admin-layout">
+  <aside class="admin-sidebar">
+    <h1>ACCESORIOS<br />D&M</h1>
+
+    <nav>
+      <button class="active">Dashboard</button>
+      <button>Productos</button>
+      <button>Fotos/Banners</button>
+      <button>Pedidos</button>
+      <button>Cupones</button>
+      <button>Configuración</button>
+    </nav>
+  </aside>
+
+  <main class="admin-content">
+    <header class="admin-header">
+      <h2>Panel administrador</h2>
+      <p>Administra contenido visible en web y app móvil.</p>
+    </header>
+
+    <section class="stats-grid">
+      <article>
+        <span>Productos</span>
+        <strong>{{ products.length }}</strong>
+      </article>
+
+      <article>
+        <span>Pedidos hoy</span>
+        <strong>24</strong>
+      </article>
+
+      <article>
+        <span>Favoritos</span>
+        <strong>342</strong>
+      </article>
+
+      <article>
+        <span>Ventas</span>
+        <strong>$2.4M</strong>
+      </article>
+    </section>
+
+    <section class="admin-grid">
+      <article class="admin-card">
+        <h3>Cambiar banner principal</h3>
+
+        <div class="upload-box">
+          Arrastra una imagen aquí
+        </div>
+
+        <button class="gold-button">Subir foto</button>
+      </article>
+
+      <article class="admin-card">
+        <h3>Crear producto</h3>
+
+        <form (ngSubmit)="saveProduct()">
+          <label>
+            Nombre del producto
+            <input type="text" name="nombre" [(ngModel)]="newProduct.nombre" required />
+          </label>
+
+          <label>
+            Descripción
+            <textarea name="descripcion" [(ngModel)]="newProduct.descripcion" required></textarea>
+          </label>
+
+          <label>
+            Precio
+            <input type="number" name="precio" [(ngModel)]="newProduct.precio" min="1" required />
+          </label>
+
+          <label>
+            Stock de ingreso
+            <input type="number" name="stock" [(ngModel)]="newProduct.stock" min="1" required />
+          </label>
+
+          <label>
+            Categoría
+            <select name="idCategoria" [(ngModel)]="newProduct.idCategoria" required>
+              <option [ngValue]="0">Selecciona una categoría</option>
+              <option *ngFor="let category of categories" [ngValue]="category.idCategoria">
+                {{ category.nombre }}
+              </option>
+            </select>
+          </label>
+
+          <label>
+            Material
+            <select name="idMaterial" [(ngModel)]="newProduct.idMaterial" required>
+              <option [ngValue]="0">Selecciona un material</option>
+              <option *ngFor="let material of materials" [ngValue]="material.idMaterial">
+                {{ material.nombre }}
+              </option>
+            </select>
+          </label>
+
+          <button type="submit" class="black-button">
+            Guardar producto
+          </button>
+        </form>
+      </article>
+    </section>
+
+    <section class="admin-card products-section">
+      <h3>Productos registrados</h3>
+
+      <div class="products-table">
+        <div class="table-header">
+          <span>Producto</span>
+          <span>Categoría</span>
+          <span>Precio</span>
+          <span>Stock</span>
+        </div>
+
+        <div class="table-row" *ngFor="let product of products">
+          <span>{{ product.name }}</span>
+          <span>{{ product.category || 'General' }}</span>
+          <span>${{ product.price }}</span>
+          <span>{{ product.stock }}</span>
+        </div>
+      </div>
+    </section>
+  </main>
+</section>
