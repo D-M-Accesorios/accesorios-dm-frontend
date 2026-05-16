@@ -28,4 +28,4 @@ export class ProductFactory {
   static fromApiList(data: any[]): Product[] {
     return data.map((item) => this.fromApi(item));
   }
-}
+} 
