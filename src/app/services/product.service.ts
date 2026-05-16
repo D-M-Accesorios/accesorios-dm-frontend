@@ -26,12 +26,13 @@ export interface CreateProductRequest {
   estado: boolean;
 }
 
+export interface UpdateProductRequest extends CreateProductRequest {}
+
 @Injectable({
   providedIn: 'root'
 })
 export class ProductService {
-  private readonly apiUrl =
-    `${environment.apiBaseUrl}/inventory/productos`;
+  private readonly apiUrl = `${environment.apiBaseUrl}/inventory/productos`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -45,15 +46,14 @@ export class ProductService {
     );
   }
 
-  getProductById(id: string): Observable<Product | null> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-      map((response) => ProductFactory.fromApi(response)),
-      catchError((error) => {
-        console.error('Error al obtener producto:', error);
-        return of(null);
-      })
-    );
-  }
+ getProductById(id: string): Observable<any> {
+  return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    catchError((error) => {
+      console.error('Error al obtener producto:', error);
+      return of(null);
+    })
+  );
+}
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(
@@ -68,9 +68,14 @@ export class ProductService {
   }
 
   createProduct(product: CreateProductRequest): Observable<any> {
-    return this.http.post(
-      `${environment.apiBaseUrl}/inventory/productos`,
-      product
-    );
+    return this.http.post(this.apiUrl, product);
+  }
+
+  updateProduct(id: string, product: UpdateProductRequest): Observable<any> {
+    return this.http.put(`${this.apiUrl}/${id}`, product);
+  }
+
+  deleteProduct(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
   }
 }
