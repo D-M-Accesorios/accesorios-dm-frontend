@@ -3,7 +3,7 @@ import { Product } from '../models/product.model';
 export class ProductFactory {
   static fromApi(data: any): Product {
     return {
-      id: data.id ?? data.productoId ?? '',
+      id: String(data.id ?? data.productoId ?? data.productId ?? data.idProducto ?? ''),
       name: data.nombre ?? data.name ?? 'Producto sin nombre',
       description: data.descripcion ?? data.description ?? '',
       price: Number(data.precio ?? data.price ?? 0),
@@ -12,7 +12,7 @@ export class ProductFactory {
         data.imagenUrl ??
         data.imageUrl ??
         data.urlImagen ??
-        'assets/product-placeholder.png',
+        'https://placehold.co/300x200?text=Producto',
       category:
         data.categoria?.nombre ??
         data.category ??

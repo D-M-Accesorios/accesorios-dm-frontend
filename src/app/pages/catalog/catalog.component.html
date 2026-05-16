@@ -15,13 +15,17 @@
   </p>
 
   <div class="product-grid" *ngIf="!isLoading && products.length > 0">
-    <article class="product-card" *ngFor="let product of products">
+    <article
+      class="product-card"
+      *ngFor="let product of products"
+      [routerLink]="['/producto', product.id]"
+    >
       <img
-  [src]="product.imageUrl && !product.imageUrl.includes('product-placeholder.png')
-    ? product.imageUrl
-    : 'https://placehold.co/300x200?text=Producto'"
-  [alt]="product.name"
-/>
+        [src]="product.imageUrl && !product.imageUrl.includes('product-placeholder.png')
+          ? product.imageUrl
+          : 'https://placehold.co/300x200?text=Producto'"
+        [alt]="product.name"
+      />
 
       <div class="product-info">
         <h2>{{ product.name }}</h2>
