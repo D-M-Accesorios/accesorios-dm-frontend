@@ -1,80 +1,259 @@
-/* Estilos específicos para la Card de Login */
-.login-card {
-  max-width: 480px; /* Un poco más ancho para desktop */
-  width: 100%;
+.home-page {
+  min-height: 100vh;
+  background: #f8f6f1;
+}
+
+/* HEADER */
+
+.main-header {
+  height: 140px;
+  background: white;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 0 3rem;
+  border-bottom: 1px solid #eee4cd;
+}
+
+.socials {
+  display: flex;
+  gap: 1rem;
+}
+
+.socials button,
+.header-actions button {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
   border: none;
-  border-radius: 15px; /* Bordes redondeados más pronunciados */
-  border-top: 6px solid #c19a40; /* El borde dorado distintivo de tu diseño */
+  background: #f5efe1;
+  color: #7a580f;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: 0.2s ease;
 }
 
-/* Estilo para el logo en la card */
-/* Usa guiones, no puntos para separar nombres de clases */
-.dm-logo-img {
-  width: 150px;       /* Tamaño ideal para que se vea como en tu diseño */
-  height: 150px;
-  object-fit: cover;  /* Mantiene la proporción de la imagen */
-  border: 3px solid #c19a40 !important; /* Borde dorado directo */
-  border-radius: 50%; /* Asegura que sea un círculo perfecto */
-  margin-bottom: 15px;
+.socials button:hover,
+.header-actions button:hover {
+  transform: scale(1.05);
 }
 
-/* Tipografía de títulos */
-.dm-title {
-  color:#c19a40;
-  letter-spacing: 1px;
+.brand {
+  text-align: center;
 }
 
-.dm-slogan {
-  font-size: 0.9rem;
-  color: #777;
+.brand h1 {
+  margin: 0;
+  font-size: 3rem;
+  color: #b88900;
+  letter-spacing: 4px;
+  font-weight: 900;
 }
 
-/* Botón principal */
-.dm-btn-main {
+.header-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+/* NAV */
+
+.categories-nav {
+  height: 70px;
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  border-bottom: 1px solid #eee4cd;
+}
+
+.categories-nav a {
+  text-decoration: none;
+  color: #5c4720;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  transition: 0.2s ease;
+}
+
+.categories-nav a:hover {
+  color: #b88900;
+}
+
+/* BANNER */
+
+.hero-banner {
+  height: 620px;
+  margin: 2rem;
+  border-radius: 28px;
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      rgba(0,0,0,0.35),
+      rgba(0,0,0,0.35)
+    ),
+    url('/assets/banner-home.jpg');
+
+  background-size: cover;
+  background-position: center;
+
+  display: flex;
+  align-items: center;
+  padding: 5rem;
+}
+
+.hero-overlay {
+  max-width: 520px;
+  color: white;
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  backdrop-filter: none;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.45);
+}
+
+.hero-overlay span {
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  padding: 0.7rem 1.2rem;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  font-weight: 700;
+}
+
+.hero-overlay h2 {
+  font-size: 4rem;
+  line-height: 0.95;
+  margin: 0 0 1.5rem;
+}
+
+.hero-overlay p {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 2rem;
+}
+
+.hero-overlay button {
+  width: 200px;
+  height: 54px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(200, 146, 0, 0.92);
+  color: white;
   font-size: 1rem;
-  letter-spacing: 1px;
-  box-shadow: 0 4px 6px rgba(193, 154, 64, 0.2); /* Sombra suave dorada */
-  transition: all 0.3s ease;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
-.dm-btn-main:hover {
-  transform: translateY(-1px); /* Pequeño efecto de levantamiento */
-  box-shadow: 0 6px 8px rgba(193, 154, 64, 0.3);
-  background-color: #a68336 !important; /* Un dorado un poco más oscuro para cuando pases el mouse */
-  border-color: #a68336 !important;
+/* PRODUCTOS */
+
+.featured-section {
+  padding: 2rem;
 }
 
-.dm-btn-main {
-    background-color: #c19a40 !important; /* El dorado de tu logo */
-    border-color: #c19a40 !important;
-    color: white !important; /* Color del texto */
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
 }
 
-.dm-link-gold {
-    color: #c19a40 !important;
-    transition: color 0.3s ease;
+.section-header h3 {
+  margin: 0;
+  font-size: 2rem;
 }
 
-.dm-link-gold:hover {
-    color: #a68336 !important; /* Un tono más oscuro al pasar el mouse */
-    text-decoration: underline !important;
+.section-header a {
+  text-decoration: none;
+  color: #b88900;
+  font-weight: 700;
 }
 
-/* Estilo para el botón hueco de Crear Cuenta */
-.btn-outline-dm-gold {
-  color: #c19a40 !important;
-  border: 2px solid #c19a40 !important;
-  background-color: transparent !important;
-  transition: all 0.3s ease;
-  border-radius: 8px; /* Bordes suaves como en tu diseño */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2rem;
 }
 
-.btn-outline-dm-gold:hover {
-  background-color: #c19a40 !important;
-  color: white !important;
+.product-card {
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 1px solid #eee4cd;
+  transition: 0.2s ease;
 }
 
-/* Ajuste para la línea divisoria */
-hr {
-  opacity: 0.15;
+.product-card:hover {
+  transform: translateY(-4px);
+}
+
+.product-card img {
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  background: #f5efe1;
+}
+
+.product-info {
+  padding: 1.5rem;
+}
+
+.product-info h4 {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+}
+
+.product-info p {
+  color: #888;
+  margin-bottom: 1rem;
+}
+
+.product-info strong {
+  color: #7a580f;
+  font-size: 1.2rem;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1100px) {
+
+  .featured-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .categories-nav {
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 0 2rem;
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .main-header {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    height: auto;
+    padding: 2rem;
+  }
+
+  .hero-banner {
+    height: 500px;
+    padding: 2rem;
+  }
+
+  .hero-overlay h2 {
+    font-size: 3rem;
+  }
+
+  .featured-grid {
+    grid-template-columns: 1fr;
+  }
+
 }
