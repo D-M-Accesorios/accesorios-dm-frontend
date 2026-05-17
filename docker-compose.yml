@@ -20,7 +20,7 @@ services:
     container_name: accesorios-frontend
     restart: always
     ports:
-      - "4200:80"
+      - "81:80"
     depends_on:
       - postgres-db
     networks:
