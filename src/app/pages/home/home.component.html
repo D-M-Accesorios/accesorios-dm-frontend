@@ -1,41 +1,99 @@
-<div class="container d-flex justify-content-center align-items-center vh-100">
-  <div class="card shadow-lg p-4 text-center login-card" style="max-width: 400px; width: 100%; border-radius: 20px;">
+<section class="home-page">
 
-    <div class="mb-4">
-      <img src="logo.jpeg" alt="Logo Accesorios DM" class="dm-logo-img shadow-sm mb-3" style="width: 120px; height: 120px; border-radius: 50%; border: 3px solid #c19a40; object-fit: cover;">
-      <h2 class="fw-bold" style="color: #c19a40;">ACCESORIOS DM</h2>
-      <p class="text-muted small fst-italic">"Nunca subestimes el poder de un buen accesorio"</p>
+  <header class="main-header">
+
+    <div class="socials">
+      <button>◎</button>
+      <button>f</button>
+      <button>♪</button>
     </div>
 
-    <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-      <div class="input-group mb-3">
-        <span class="input-group-text bg-white border-end-0"><i class="bi bi-envelope text-warning"></i></span>
-        <input type="email" formControlName="correo" class="form-control border-start-0" placeholder="Correo electrónico">
-      </div>
+    <div class="brand">
+      <h1>ACCESORIOS D&M</h1>
+    </div>
 
-      <div class="input-group mb-2">
-        <span class="input-group-text bg-white border-end-0"><i class="bi bi-lock text-warning"></i></span>
-        <input type="password" formControlName="password" class="form-control border-start-0" placeholder="Contraseña">
-      </div>
+    <div class="header-actions">
+      <button>⌕</button>
+      <button>🛍</button>
+    </div>
 
-      <div class="text-end mb-4">
-        <a href="#" class="small text-decoration-none" style="color: #c19a40;">¿Olvidaste tu contraseña?</a>
-      </div>
+  </header>
 
-      <button type="submit" class="btn w-100 fw-bold py-2 mb-3" style="background-color: #c19a40; color: white; border-radius: 10px;">
-        INICIAR SESIÓN
+  <nav class="categories-nav">
+
+    <a
+      *ngFor="let category of categories"
+      [routerLink]="category.path"
+    >
+      {{ category.name }}
+    </a>
+
+  </nav>
+
+  <section class="hero-banner">
+
+    <div class="hero-overlay">
+
+      <span>Nueva colección</span>
+
+      <h2>
+        Accesorios<br />
+        exclusivos
+      </h2>
+
+      <p>
+        Elegancia y estilo para cada ocasión.
+      </p>
+
+      <button>
+        Comprar ahora
       </button>
 
-      <p class="small text-muted mb-3">Acceso Administrador</p>
-    </form>
-
-    <div class="position-relative my-4 text-center">
-      <hr class="text-muted">
-      <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 small text-muted">¿No tienes cuenta?</span>
     </div>
 
-    <a routerLink="/register" class="btn w-100 fw-bold py-2" style="color: #c19a40; border: 2px solid #c19a40; border-radius: 10px; background: transparent;">
-      CREAR CUENTA
-    </a>
-  </div>
-</div>
+  </section>
+
+  <section class="featured-section">
+
+    <div class="section-header">
+      <h3>Productos destacados</h3>
+
+      <a routerLink="/catalogo">
+        Ver todos
+      </a>
+    </div>
+
+    <div class="featured-grid">
+
+      <article
+        class="product-card"
+        *ngFor="let product of products"
+        [routerLink]="['/producto', product.id]"
+      >
+
+        <img
+          [src]="product.imageUrl"
+          [alt]="product.name"
+        />
+
+        <div class="product-info">
+
+          <h4>{{ product.name }}</h4>
+
+          <p>
+            {{ product.category || 'Accesorios' }}
+          </p>
+
+          <strong>
+            ${{ product.price }}
+          </strong>
+
+        </div>
+
+      </article>
+
+    </div>
+
+  </section>
+
+</section>
