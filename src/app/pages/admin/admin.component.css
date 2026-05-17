@@ -183,3 +183,37 @@ textarea {
   min-height: 90px;
   resize: vertical;
 }
+.table-header,
+.table-row {
+  grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.edit-button,
+.delete-button,
+.cancel-button {
+  border: none;
+  border-radius: 999px;
+  padding: 0.65rem 1rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.edit-button {
+  background: #fbf2d8;
+  color: #7a580f;
+}
+
+.delete-button {
+  background: #ffe7e7;
+  color: #9b1c1c;
+}
+
+.cancel-button {
+  background: #e9edf5;
+  color: #3b4454;
+}

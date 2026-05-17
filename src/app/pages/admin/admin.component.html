@@ -43,16 +43,12 @@
     <section class="admin-grid">
       <article class="admin-card">
         <h3>Cambiar banner principal</h3>
-
-        <div class="upload-box">
-          Arrastra una imagen aquí
-        </div>
-
+        <div class="upload-box">Arrastra una imagen aquí</div>
         <button class="gold-button">Subir foto</button>
       </article>
 
       <article class="admin-card">
-        <h3>Crear producto</h3>
+        <h3>{{ editingProductId ? 'Editar producto' : 'Crear producto' }}</h3>
 
         <form (ngSubmit)="saveProduct()">
           <label>
@@ -96,7 +92,16 @@
           </label>
 
           <button type="submit" class="black-button">
-            Guardar producto
+            {{ editingProductId ? 'Guardar cambios' : 'Guardar producto' }}
+          </button>
+
+          <button
+            *ngIf="editingProductId"
+            type="button"
+            class="cancel-button"
+            (click)="cancelEdit()"
+          >
+            Cancelar edición
           </button>
         </form>
       </article>
@@ -111,6 +116,7 @@
           <span>Categoría</span>
           <span>Precio</span>
           <span>Stock</span>
+          <span>Acciones</span>
         </div>
 
         <div class="table-row" *ngFor="let product of products">
@@ -118,6 +124,16 @@
           <span>{{ product.category || 'General' }}</span>
           <span>${{ product.price }}</span>
           <span>{{ product.stock }}</span>
+
+          <div class="actions">
+            <button type="button" class="edit-button" (click)="editProduct(product)">
+              Editar
+            </button>
+
+            <button type="button" class="delete-button" (click)="deleteProduct(product)">
+              Eliminar
+            </button>
+          </div>
         </div>
       </div>
     </section>
