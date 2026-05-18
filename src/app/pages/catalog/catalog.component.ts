@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ProductService } from '../../services/product.service';
 import { Product } from '../../models/product.model';
+import { CartService } from '../../services/cart.service';
 
 @Component({
   selector: 'app-catalog',
@@ -15,8 +16,16 @@ export class CatalogComponent implements OnInit {
   products: Product[] = [];
   isLoading = true;
   errorMessage = '';
+  
+  addToCart(event: Event, product: Product): void {
+  event.stopPropagation();
+  this.cartService.addProduct(product);
+}
 
-  constructor(private readonly productService: ProductService) {}
+ constructor(
+  private readonly productService: ProductService,
+  private readonly cartService: CartService
+) {}
 
   ngOnInit(): void {
     this.productService.getProducts().subscribe({

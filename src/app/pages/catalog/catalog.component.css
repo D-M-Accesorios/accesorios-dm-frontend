@@ -72,3 +72,33 @@
   display: block;
   margin-top: 0.8rem;
 }
+.add-cart-button {
+  margin-top: 1rem;
+  width: 100%;
+  height: 46px;
+  border: none;
+  border-radius: 999px;
+  background: #111;
+  color: white;
+  font-weight: 800;
+  cursor: pointer;
+}
+.product-info .add-cart-button {
+  margin-top: 1rem;
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: 999px;
+  background: #111;
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.14);
+  transition: 0.25s ease;
+}
+
+.product-info .add-cart-button:hover {
+  background: #b88900;
+  transform: translateY(-2px);
+}
