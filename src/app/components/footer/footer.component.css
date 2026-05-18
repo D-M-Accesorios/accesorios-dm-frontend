@@ -1,0 +1,51 @@
+.site-footer {
+  background: #111;
+  color: white;
+  padding: 3rem;
+}
+
+.footer-brand h2 {
+  color: #b88900;
+  letter-spacing: 3px;
+  margin: 0 0 0.5rem;
+}
+
+.footer-brand p {
+  color: #d6d6d6;
+}
+
+.footer-links {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3rem;
+  margin: 3rem 0;
+}
+
+.footer-links h3 {
+  color: #c89200;
+  margin-bottom: 1rem;
+}
+
+.footer-links a,
+.footer-links p {
+  display: block;
+  color: #d6d6d6;
+  text-decoration: none;
+  margin-bottom: 0.7rem;
+}
+
+.footer-links a:hover {
+  color: #c89200;
+}
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.12);
+  padding-top: 1.5rem;
+  color: #aaa;
+}
+
+@media (max-width: 768px) {
+  .footer-links {
+    grid-template-columns: 1fr;
+  }
+}
