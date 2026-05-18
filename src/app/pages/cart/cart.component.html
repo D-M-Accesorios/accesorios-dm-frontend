@@ -1,86 +1,58 @@
-<div class="container py-4" style="background-color: #fcfcfc; min-height: 100vh;">
+<section class="cart-page">
+  <header class="cart-header">
+    <h1>Carrito de compras</h1>
+    <p>Revisa tus productos antes de continuar.</p>
+  </header>
 
-  <!-- HEADER -->
-  <div class="d-flex align-items-center mb-4">
-    <button class="btn btn-light rounded-circle shadow-sm me-3" routerLink="/tienda">
-      <i class="bi bi-arrow-left" style="color: #c19a40;"></i>
-    </button>
-    <h5 class="fw-bold mb-0 mx-auto">MI CARRITO</h5>
-  </div>
+  <p *ngIf="items.length === 0" class="empty-cart">
+    Tu carrito está vacío.
+  </p>
 
-  <!-- LISTA DE PRODUCTOS -->
-  <div *ngFor="let item of productos" class="card border-0 shadow-sm rounded-4 mb-3 p-3">
-    <div class="d-flex align-items-center">
+  <section class="cart-table" *ngIf="items.length > 0">
+    <div class="cart-row cart-head">
+      <span>Producto</span>
+      <span>Precio</span>
+      <span>Cantidad</span>
+      <span>Total</span>
+    </div>
 
-      <!-- Imagen genérica -->
-      <img
-  [src]="item.imageUrl || '/collar.png'"
-  class="rounded-3"
-  style="width: 80px; height: 80px; object-fit: cover;"
-  alt="Producto">
+    <article class="cart-row" *ngFor="let item of items">
+      <div class="product-column">
+        <img [src]="item.product.imageUrl" [alt]="item.product.name" />
 
-      <div class="ms-3 flex-grow-1">
-        <h6 class="fw-bold mb-1">{{ item.name }}</h6>
-
-        <!-- PRECIO UNITARIO -->
-        <p class="fw-bold mb-1" style="color: #c19a40;">
-          $ {{ item.price | number }}
-        </p>
-
-        <!-- SUBTOTAL POR PRODUCTO -->
-        <small class="text-muted d-block mb-2">
-          Subtotal: $ {{ (item.price * item.cantidad) | number }}
-        </small>
-
-        <!-- CONTROL DE CANTIDAD -->
-        <div class="d-flex align-items-center bg-light rounded-pill px-2 py-1" style="width: fit-content;">
-          <button class="btn btn-sm p-0 px-2" (click)="cambiarCantidad(item, -1)">-</button>
-          <span class="mx-3 fw-bold">{{ item.cantidad }}</span>
-          <button class="btn btn-sm p-0 px-2" (click)="cambiarCantidad(item, 1)">+</button>
+        <div>
+          <h2>{{ item.product.name }}</h2>
+          <button type="button" (click)="removeProduct(item.product.id)">
+            <i class="bi bi-trash"></i>
+            Eliminar
+          </button>
         </div>
       </div>
 
-      <!-- ELIMINAR -->
-      <button class="btn text-danger" (click)="eliminar(item)">
-        <i class="bi bi-trash"></i>
-      </button>
-    </div>
-  </div>
+      <strong class="price">
+        ${{ item.product.price | number:'1.0-0' }}
+      </strong>
 
-  <!-- MENSAJE SI NO HAY PRODUCTOS -->
-  <div *ngIf="productos.length === 0" class="text-center mt-5">
-    <p class="text-muted">Tu carrito está vacío 🛒</p>
-  </div>
+      <div class="quantity-control">
+        <button type="button" (click)="decrease(item.product.id)">−</button>
+        <span>{{ item.quantity }}</span>
+        <button type="button" (click)="increase(item.product.id)">+</button>
+      </div>
 
-  <!-- RESUMEN -->
-  <div *ngIf="productos.length > 0" class="card border-0 shadow-sm rounded-4 mt-4 p-4">
-    <h6 class="fw-bold mb-4">RESUMEN DEL PEDIDO</h6>
+      <strong class="line-total">
+        ${{ getItemTotal(item) | number:'1.0-0' }}
+      </strong>
+    </article>
+  </section>
 
-    <div class="d-flex justify-content-between mb-2">
-      <span class="text-muted">Subtotal</span>
-      <span class="fw-bold">$ {{ total | number }}</span>
-    </div>
-
-    <div class="d-flex justify-content-between mb-4">
-      <span class="text-muted">Envío</span>
-      <span class="fw-bold" style="color: #c19a40;">GRATIS</span>
+  <section class="cart-summary" *ngIf="items.length > 0">
+    <div>
+      <span>Total</span>
+      <strong>${{ total | number:'1.0-0' }}</strong>
     </div>
 
-    <hr>
-
-    <div class="d-flex justify-content-between align-items-center mt-3">
-      <h5 class="fw-bold">Total</h5>
-      <h5 class="fw-bold" style="color: #c19a40;">
-        $ {{ total | number }}
-      </h5>
-    </div>
-  </div>
-
-  <!-- BOTÓN PAGAR -->
-  <button *ngIf="productos.length > 0"
-          class="btn w-100 mt-4 py-3 fw-bold text-white shadow"
-          style="background-color: #c19a40; border-radius: 12px;">
-    <i class="bi bi-credit-card me-2"></i> PAGAR $ {{ total | number }}
-  </button>
-
-</div>
+    <button type="button">
+      Finalizar compra
+    </button>
+  </section>
+</section>
