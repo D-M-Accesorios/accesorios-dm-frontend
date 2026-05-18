@@ -24,9 +24,25 @@
       Stock disponible: {{ product.stock }}
     </p>
 
-    <button class="add-button">
-      Agregar al carrito
-    </button>
+<div class="purchase-actions">
+  <div class="quantity-selector">
+    <button type="button" (click)="decreaseQuantity()">−</button>
+    <span>{{ quantity }}</span>
+    <button type="button" (click)="increaseQuantity()">+</button>
+  </div>
+
+  <button class="add-cart-button" type="button" (click)="addToCart()">
+    <i class="bi bi-cart3"></i>
+    Agregar al carrito
+  </button>
+</div>
+<div class="cart-toast" *ngIf="showCartMessage">
+  Producto agregado al carrito
+</div>
+
+<button class="buy-now-button" type="button">
+  Comprar ahora
+</button>
 
   </div>
 
