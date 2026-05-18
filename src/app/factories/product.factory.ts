@@ -32,12 +32,12 @@ export class ProductFactory {
         0
       ),
 
-      imageUrl:
-        data.imagenPrincipal ??
-        data.imagenUrl ??
-        data.imageUrl ??
-        data.urlImagen ??
-        'https://placehold.co/300x200?text=Producto',
+    imageUrl:
+  data.imagenPrincipal
+    ? `http://localhost:8001/api/v1${data.imagenPrincipal}`
+    : data.imagenes?.[0]?.urlImagen
+      ? `http://localhost:8001/api/v1${data.imagenes[0].urlImagen}`
+      : 'https://placehold.co/300x200?text=Producto',
 
       category:
         data.categoria?.nombre ??
