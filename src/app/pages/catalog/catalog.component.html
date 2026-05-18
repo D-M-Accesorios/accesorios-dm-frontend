@@ -29,9 +29,22 @@
 
       <div class="product-info">
         <h2>{{ product.name }}</h2>
-        <p>{{ product.description }}</p>
-        <strong>${{ product.price | number:'1.0-0' }}</strong>
 
+        <p>
+          {{ product.description || product.category || 'Accesorio exclusivo' }}
+        </p>
+
+        <strong>
+          ${{ product.price | number:'1.0-0' }}
+        </strong>
+
+        <button
+          type="button"
+          class="add-cart-button"
+          (click)="addToCart($event, product)"
+        >
+          Agregar al carrito
+        </button>
       </div>
     </article>
   </div>

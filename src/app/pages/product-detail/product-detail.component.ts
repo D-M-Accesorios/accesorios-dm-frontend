@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 
+import { CartService } from '../../services/cart.service';
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 
@@ -16,10 +17,13 @@ export class ProductDetailComponent implements OnInit {
   product: Product | null = null;
   isLoading = true;
   errorMessage = '';
+  quantity = 1;
+  showCartMessage = false;
 
   constructor(
     private readonly route: ActivatedRoute,
-    private readonly productService: ProductService
+    private readonly productService: ProductService,
+    private readonly cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -50,4 +54,30 @@ export class ProductDetailComponent implements OnInit {
   get imageUrl(): string {
     return this.product?.imageUrl || 'https://placehold.co/600x480?text=Producto';
   }
+
+  increaseQuantity(): void {
+    this.quantity += 1;
+  }
+
+  decreaseQuantity(): void {
+    if (this.quantity > 1) {
+      this.quantity -= 1;
+    }
+  }
+
+  addToCart(): void {
+  if (!this.product) {
+    return;
+  }
+
+  for (let i = 0; i < this.quantity; i++) {
+    this.cartService.addProduct(this.product);
+  }
+
+  this.showCartMessage = true;
+
+  setTimeout(() => {
+    this.showCartMessage = false;
+  }, 2500);
+}
 }
