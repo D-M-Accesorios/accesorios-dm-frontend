@@ -3,19 +3,22 @@
   <header class="main-header">
 
     <div class="socials">
-      <button>◎</button>
-      <button>f</button>
-      <button>♪</button>
-    </div>
+  <a href="https://www.instagram.com/accesoriosdm14?igsh=ZGY3aXJseWthczZ5&utm_source=qr/" target="_blank" rel="noopener noreferrer">◎</a>
+  <a href="https://www.facebook.com/share/1JCbjVYCvR/?mibextid=wwXIfr/" target="_blank" rel="noopener noreferrer">f</a>
+  <a href="https://www.tiktok.com/@accesoriosdm14?_r=1&_t=ZS-96RroRuj4sv" target="_blank" rel="noopener noreferrer">♪</a>
+</div>
 
     <div class="brand">
       <h1>ACCESORIOS D&M</h1>
     </div>
 
     <div class="header-actions">
-      <button>⌕</button>
-      <button>🛍</button>
-    </div>
+  <button>⌕</button>
+
+  <button>
+    <i class="bi bi-handbag-fill"></i>
+  </button>
+</div>
 
   </header>
 
@@ -45,9 +48,9 @@
         Elegancia y estilo para cada ocasión.
       </p>
 
-      <button>
-        Comprar ahora
-      </button>
+      <a routerLink="/catalogo" class="hero-cta">
+  Comprar ahora
+</a>
 
     </div>
 
@@ -85,7 +88,7 @@
           </p>
 
           <strong>
-            ${{ product.price }}
+            ${{ product.price | number:'1.0-0' }}
           </strong>
 
         </div>
