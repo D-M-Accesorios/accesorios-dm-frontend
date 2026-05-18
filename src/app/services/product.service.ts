@@ -46,8 +46,9 @@ export class ProductService {
     );
   }
 
- getProductById(id: string): Observable<any> {
+ getProductById(id: string): Observable<Product | null> {
   return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+    map((response) => ProductFactory.fromApi(response)),
     catchError((error) => {
       console.error('Error al obtener producto:', error);
       return of(null);

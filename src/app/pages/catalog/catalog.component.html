@@ -30,8 +30,8 @@
       <div class="product-info">
         <h2>{{ product.name }}</h2>
         <p>{{ product.description }}</p>
-        <strong>${{ product.price }}</strong>
-        <span>Stock: {{ product.stock }}</span>
+        <strong>${{ product.price | number:'1.0-0' }}</strong>
+
       </div>
     </article>
   </div>

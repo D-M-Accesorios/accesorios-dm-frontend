@@ -122,7 +122,7 @@
         <div class="table-row" *ngFor="let product of products">
           <span>{{ product.name }}</span>
           <span>{{ product.category || 'General' }}</span>
-          <span>${{ product.price }}</span>
+          <span>${{ product.price | number:'1.0-0' }}</span>
           <span>{{ product.stock }}</span>
 
           <div class="actions">

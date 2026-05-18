@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+
 import { Product } from '../../models/product.model';
 import { ProductService } from '../../services/product.service';
 
@@ -30,19 +31,23 @@ export class ProductDetailComponent implements OnInit {
       return;
     }
 
-    this.productService.getProductById(id).subscribe((product) => {
-      this.product = product;
-      this.isLoading = false;
+    this.productService.getProductById(id).subscribe({
+      next: (product) => {
+        this.product = product;
+        this.isLoading = false;
 
-      if (!product) {
+        if (!product) {
+          this.errorMessage = 'No fue posible cargar el detalle del producto.';
+        }
+      },
+      error: () => {
         this.errorMessage = 'No fue posible cargar el detalle del producto.';
+        this.isLoading = false;
       }
     });
   }
 
   get imageUrl(): string {
-    return this.product?.imageUrl && !this.product.imageUrl.includes('product-placeholder.png')
-      ? this.product.imageUrl
-      : 'https://placehold.co/600x480?text=Producto';
+    return this.product?.imageUrl || 'https://placehold.co/600x480?text=Producto';
   }
 }
