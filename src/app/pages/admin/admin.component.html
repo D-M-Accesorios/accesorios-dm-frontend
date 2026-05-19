@@ -3,12 +3,13 @@
     <h1>ACCESORIOS<br />D&M</h1>
 
     <nav>
-      <button class="active">Dashboard</button>
-      <button>Productos</button>
-      <button>Fotos/Banners</button>
-      <button>Pedidos</button>
-      <button>Cupones</button>
-      <button>Configuración</button>
+      <button [class.active]="activeSection === 'dashboard'" (click)="setActiveSection('dashboard')">Dashboard</button>
+      <button [class.active]="activeSection === 'productos'" (click)="setActiveSection('productos')">Productos</button>
+      <button [class.active]="activeSection === 'banners'" (click)="setActiveSection('banners')">Fotos/Banners</button>
+      <button [class.active]="activeSection === 'pedidos'" (click)="setActiveSection('pedidos')">Pedidos</button>
+      <button [class.active]="activeSection === 'cupones'" (click)="setActiveSection('cupones')">Cupones</button>
+      <button [class.active]="activeSection === 'configuracion'" (click)="setActiveSection('configuracion')">Configuración</button>
+      <button class="logout-button" type="button" (click)="logout()">Cerrar sesión</button>
     </nav>
   </aside>
 
@@ -18,15 +19,15 @@
       <p>Administra contenido visible en web y app móvil.</p>
     </header>
 
-    <section class="stats-grid">
+    <section class="stats-grid" *ngIf="activeSection === 'dashboard'">
       <article>
         <span>Productos</span>
         <strong>{{ products.length }}</strong>
       </article>
 
       <article>
-        <span>Pedidos hoy</span>
-        <strong>24</strong>
+        <span>Pedidos</span>
+        <strong>{{ orders.length }}</strong>
       </article>
 
       <article>
@@ -40,140 +41,177 @@
       </article>
     </section>
 
-    <section class="admin-grid">
-      <article class="admin-card image-card">
-        <h3>Imagen del producto</h3>
+    <ng-container *ngIf="activeSection === 'productos'">
+      <section class="admin-grid">
+        <article class="admin-card image-card">
+          <h3>Imagen del producto</h3>
 
-        <div class="upload-box product-preview">
-          <img
-            *ngIf="previewImage"
-            [src]="previewImage"
-            alt="Vista previa del producto"
-          />
+          <div class="upload-box product-preview">
+            <img *ngIf="previewImage" [src]="previewImage" alt="Vista previa del producto" />
+            <span *ngIf="!previewImage">Selecciona una imagen para el producto</span>
+          </div>
 
-          <span *ngIf="!previewImage">
-            Selecciona una imagen para el producto
-          </span>
-        </div>
-
-        <label class="gold-button upload-button">
-          Subir foto
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            (change)="onImageSelected($event)"
-          />
-        </label>
-      </article>
-
-      <article class="admin-card">
-        <h3>{{ editingProductId ? 'Editar producto' : 'Crear producto' }}</h3>
-
-        <form (ngSubmit)="saveProduct()">
-          <label>
-            Nombre del producto
-            <input type="text" name="nombre" [(ngModel)]="newProduct.nombre" required />
+          <label class="gold-button upload-button">
+            Subir foto
+            <input type="file" accept="image/*" hidden (change)="onImageSelected($event)" />
           </label>
+        </article>
 
-          <label>
-            Descripción
-            <textarea name="descripcion" [(ngModel)]="newProduct.descripcion" required></textarea>
-          </label>
+        <article class="admin-card">
+          <h3>{{ editingProductId ? 'Editar producto' : 'Crear producto' }}</h3>
 
-          <label>
-            Precio
-            <input type="number" name="precio" [(ngModel)]="newProduct.precio" min="1" required />
-          </label>
+          <form (ngSubmit)="saveProduct()">
+            <label>
+              Nombre del producto
+              <input type="text" name="nombre" [(ngModel)]="newProduct.nombre" required />
+            </label>
 
-          <label>
-            Stock de ingreso
-            <input type="number" name="stock" [(ngModel)]="newProduct.stock" min="1" required />
-          </label>
+            <label>
+              Descripción
+              <textarea name="descripcion" [(ngModel)]="newProduct.descripcion" required></textarea>
+            </label>
 
-          <label>
-            Categoría
-            <select name="idCategoria" [(ngModel)]="newProduct.idCategoria" required>
-              <option [ngValue]="0">Selecciona una categoría</option>
-              <option *ngFor="let category of categories" [ngValue]="category.idCategoria">
-                {{ category.nombre }}
-              </option>
-            </select>
-          </label>
+            <label>
+              Precio
+              <input type="number" name="precio" [(ngModel)]="newProduct.precio" min="1" required />
+            </label>
 
-          <label>
-            Material
-            <select name="idMaterial" [(ngModel)]="newProduct.idMaterial" required>
-              <option [ngValue]="0">Selecciona un material</option>
-              <option *ngFor="let material of materials" [ngValue]="material.idMaterial">
-                {{ material.nombre }}
-              </option>
-            </select>
-          </label>
+            <label>
+              Stock de ingreso
+              <input type="number" name="stock" [(ngModel)]="newProduct.stock" min="1" required />
+            </label>
 
-          <p class="success-message" *ngIf="successMessage">
-            {{ successMessage }}
-          </p>
+            <label>
+              Categoría
+              <select name="idCategoria" [(ngModel)]="newProduct.idCategoria" required>
+                <option [ngValue]="0">Selecciona una categoría</option>
+                <option *ngFor="let category of categories" [ngValue]="category.idCategoria">
+                  {{ category.nombre }}
+                </option>
+              </select>
+            </label>
 
-          <p class="error-message" *ngIf="errorMessage">
-            {{ errorMessage }}
-          </p>
+            <label>
+              Material
+              <select name="idMaterial" [(ngModel)]="newProduct.idMaterial" required>
+                <option [ngValue]="0">Selecciona un material</option>
+                <option *ngFor="let material of materials" [ngValue]="material.idMaterial">
+                  {{ material.nombre }}
+                </option>
+              </select>
+            </label>
 
-          <button type="submit" class="black-button">
-            {{ editingProductId ? 'Guardar cambios' : 'Guardar producto' }}
-          </button>
+            <p class="success-message" *ngIf="successMessage">{{ successMessage }}</p>
+            <p class="error-message" *ngIf="errorMessage">{{ errorMessage }}</p>
 
-          <button
-            *ngIf="editingProductId"
-            type="button"
-            class="cancel-button"
-            (click)="cancelEdit()"
-          >
-            Cancelar edición
-          </button>
-        </form>
-      </article>
-    </section>
+            <button type="submit" class="black-button">
+              {{ editingProductId ? 'Guardar cambios' : 'Guardar producto' }}
+            </button>
 
-    <section class="admin-card products-section">
-      <h3>Productos registrados</h3>
+            <button *ngIf="editingProductId" type="button" class="cancel-button" (click)="cancelEdit()">
+              Cancelar edición
+            </button>
+          </form>
+        </article>
+      </section>
 
-      <p *ngIf="isLoading">Cargando productos...</p>
+      <section class="admin-card products-section">
+        <h3>Productos registrados</h3>
 
-      <div class="products-table" *ngIf="!isLoading">
-        <div class="table-header">
-          <span>Producto</span>
-          <span>Categoría</span>
-          <span>Precio</span>
-          <span>Stock</span>
-          <span>Acciones</span>
-        </div>
+        <p *ngIf="isLoading">Cargando productos...</p>
 
-        <div class="table-row" *ngFor="let product of products">
-          <div class="product-cell">
-            <img [src]="product.imageUrl" [alt]="product.name" />
+        <div class="products-table" *ngIf="!isLoading">
+          <div class="table-header">
+            <span>Producto</span>
+            <span>Categoría</span>
+            <span>Precio</span>
+            <span>Stock</span>
+            <span>Acciones</span>
+          </div>
 
-            <div>
-              <strong>{{ product.name }}</strong>
-              <small>{{ product.material || 'Accesorio' }}</small>
+          <div class="table-row" *ngFor="let product of products">
+            <div class="product-cell">
+              <img [src]="product.imageUrl" [alt]="product.name" />
+
+              <div>
+                <strong>{{ product.name }}</strong>
+                <small>{{ product.material || 'Accesorio' }}</small>
+              </div>
+            </div>
+
+            <span>{{ product.category || 'General' }}</span>
+            <span>${{ product.price | number:'1.0-0' }}</span>
+            <span>{{ product.stock }}</span>
+
+            <div class="actions">
+              <button type="button" class="edit-button" (click)="editProduct(product)">Editar</button>
+              <button type="button" class="delete-button" (click)="deleteProduct(product)">Eliminar</button>
             </div>
           </div>
-
-          <span>{{ product.category || 'General' }}</span>
-          <span>${{ product.price | number:'1.0-0' }}</span>
-          <span>{{ product.stock }}</span>
-
-          <div class="actions">
-            <button type="button" class="edit-button" (click)="editProduct(product)">
-              Editar
-            </button>
-
-            <button type="button" class="delete-button" (click)="deleteProduct(product)">
-              Eliminar
-            </button>
-          </div>
         </div>
+      </section>
+    </ng-container>
+
+    <section class="admin-card" *ngIf="activeSection === 'pedidos'">
+      <h3>Pedidos realizados</h3>
+
+      <p class="success-message" *ngIf="ordersMessage">{{ ordersMessage }}</p>
+      <p *ngIf="isLoadingOrders">Cargando pedidos...</p>
+
+      <div class="orders-table" *ngIf="!isLoadingOrders">
+        <div class="orders-header">
+          <span>Pedido</span>
+          <span>Cliente</span>
+          <span>Estado</span>
+          <span>Cambiar</span>
+          <span>Total</span>
+          <span>Productos</span>
+          <span>Fecha</span>
+        </div>
+
+        <div class="orders-row" *ngFor="let order of orders">
+          <strong class="order-id">#{{ order.id_pedido }}</strong>
+
+          <div class="order-client">
+            <strong>{{ order.cliente.nombre }}</strong>
+            <small>{{ order.cliente.correo }}</small>
+          </div>
+
+          <span class="order-status">{{ order.estado }}</span>
+
+          <select
+            class="status-select"
+            [value]="order.estado_id"
+            [disabled]="isUpdatingOrder"
+            (change)="updateOrderStatus(order.id_pedido, $any($event.target).value)"
+          >
+            <option *ngFor="let status of orderStatuses" [value]="status.id_estado">
+              {{ status.nombre }}
+            </option>
+          </select>
+
+          <strong class="order-total">${{ order.total | number:'1.0-0' }}</strong>
+          <span>{{ order.cantidad_productos }}</span>
+          <span>{{ order.fecha_pedido | date:'short' }}</span>
+        </div>
+
+        <p *ngIf="orders.length === 0">No hay pedidos registrados todavía.</p>
       </div>
+    </section>
+
+    <section class="admin-card" *ngIf="activeSection === 'banners'">
+      <h3>Fotos y banners</h3>
+      <p>Próximamente podrás administrar banners promocionales.</p>
+    </section>
+
+    <section class="admin-card" *ngIf="activeSection === 'cupones'">
+      <h3>Cupones</h3>
+      <p>Próximamente podrás crear y administrar cupones.</p>
+    </section>
+
+    <section class="admin-card" *ngIf="activeSection === 'configuracion'">
+      <h3>Configuración</h3>
+      <p>Administración general del panel y usuarios.</p>
     </section>
   </main>
 </section>

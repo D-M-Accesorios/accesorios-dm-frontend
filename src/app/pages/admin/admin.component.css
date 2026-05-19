@@ -269,3 +269,65 @@ textarea {
   align-items: center;
   width: fit-content;
 }
+.logout-button {
+  margin-top: auto;
+  background: #c62828;
+  color: white;
+}
+.orders-table {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.orders-header,
+.orders-row {
+  display: grid;
+  grid-template-columns: 0.6fr 2fr 1fr 1.4fr 1fr 0.8fr 1.3fr;
+  gap: 1.25rem;
+  align-items: center;
+}
+
+.orders-header {
+  color: #7c8491;
+  font-weight: 900;
+  padding: 0 1rem 0.9rem;
+  border-bottom: 1px solid #eee0c5;
+}
+
+.orders-row {
+  background: #faf8f3;
+  border-radius: 16px;
+  padding: 1.25rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.order-client {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.order-client small {
+  color: #7c8491;
+}
+
+.order-id,
+.order-total {
+  color: #111;
+}
+
+.order-status {
+  background: #fbf2d8;
+  color: #7a580f;
+  width: fit-content;
+  padding: 0.5rem 0.85rem;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.status-select {
+  border: 1px solid #e6e8ed;
+  border-radius: 999px;
+  padding: 0.65rem 0.9rem;
+  background: white;
+  font-weight: 800;
+}
