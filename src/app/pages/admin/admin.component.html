@@ -41,10 +41,30 @@
     </section>
 
     <section class="admin-grid">
-      <article class="admin-card">
-        <h3>Cambiar banner principal</h3>
-        <div class="upload-box">Arrastra una imagen aquí</div>
-        <button class="gold-button">Subir foto</button>
+      <article class="admin-card image-card">
+        <h3>Imagen del producto</h3>
+
+        <div class="upload-box product-preview">
+          <img
+            *ngIf="previewImage"
+            [src]="previewImage"
+            alt="Vista previa del producto"
+          />
+
+          <span *ngIf="!previewImage">
+            Selecciona una imagen para el producto
+          </span>
+        </div>
+
+        <label class="gold-button upload-button">
+          Subir foto
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            (change)="onImageSelected($event)"
+          />
+        </label>
       </article>
 
       <article class="admin-card">
@@ -91,6 +111,14 @@
             </select>
           </label>
 
+          <p class="success-message" *ngIf="successMessage">
+            {{ successMessage }}
+          </p>
+
+          <p class="error-message" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </p>
+
           <button type="submit" class="black-button">
             {{ editingProductId ? 'Guardar cambios' : 'Guardar producto' }}
           </button>
@@ -110,7 +138,9 @@
     <section class="admin-card products-section">
       <h3>Productos registrados</h3>
 
-      <div class="products-table">
+      <p *ngIf="isLoading">Cargando productos...</p>
+
+      <div class="products-table" *ngIf="!isLoading">
         <div class="table-header">
           <span>Producto</span>
           <span>Categoría</span>
@@ -120,7 +150,15 @@
         </div>
 
         <div class="table-row" *ngFor="let product of products">
-          <span>{{ product.name }}</span>
+          <div class="product-cell">
+            <img [src]="product.imageUrl" [alt]="product.name" />
+
+            <div>
+              <strong>{{ product.name }}</strong>
+              <small>{{ product.material || 'Accesorio' }}</small>
+            </div>
+          </div>
+
           <span>{{ product.category || 'General' }}</span>
           <span>${{ product.price | number:'1.0-0' }}</span>
           <span>{{ product.stock }}</span>
