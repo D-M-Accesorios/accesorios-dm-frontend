@@ -44,7 +44,7 @@ export class AdminLoginComponent {
 
         const role = String(response.rol ?? '').trim().toUpperCase();
 
-        if (role !== 'ADMIN') {
+        if (!['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS', 'BODEGUERO'].includes(role)) {
           this.authService.logout();
           this.errorMessage = 'No tienes permisos para ingresar al panel.';
           return;
