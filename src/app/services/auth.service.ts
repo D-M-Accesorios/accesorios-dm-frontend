@@ -54,16 +54,21 @@ export class AuthService {
     return !!localStorage.getItem('access_token');
   }
 
- isAdmin(): boolean {
+ hasAdminAccess(): boolean {
   const user = localStorage.getItem('admin_user');
+  if (!user) return false;
 
-  if (!user) {
-    return false;
-  }
+  const role = String(JSON.parse(user).rol ?? '').trim().toUpperCase();
 
-  const parsedUser = JSON.parse(user);
-  const role = String(parsedUser.rol ?? '').trim().toUpperCase();
+  return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS', 'BODEGUERO'].includes(role);
+}
+
+isAdmin(): boolean {
+  const user = localStorage.getItem('admin_user');
+  if (!user) return false;
+
+  const role = String(JSON.parse(user).rol ?? '').trim().toUpperCase();
 
   return role === 'ADMIN';
-}
+}  
 }

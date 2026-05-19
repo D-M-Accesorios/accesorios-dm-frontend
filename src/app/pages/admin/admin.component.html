@@ -4,11 +4,29 @@
 
     <nav>
       <button [class.active]="activeSection === 'dashboard'" (click)="setActiveSection('dashboard')">Dashboard</button>
-      <button [class.active]="activeSection === 'productos'" (click)="setActiveSection('productos')">Productos</button>
+      <button
+  *ngIf="canManageProducts"
+  [class.active]="activeSection === 'productos'"
+  (click)="setActiveSection('productos')"
+>
+  Productos
+</button>
       <button [class.active]="activeSection === 'banners'" (click)="setActiveSection('banners')">Fotos/Banners</button>
-      <button [class.active]="activeSection === 'pedidos'" (click)="setActiveSection('pedidos')">Pedidos</button>
+      <button
+  *ngIf="canManageOrders"
+  [class.active]="activeSection === 'pedidos'"
+  (click)="setActiveSection('pedidos')"
+>
+  Pedidos
+</button>
       <button [class.active]="activeSection === 'cupones'" (click)="setActiveSection('cupones')">Cupones</button>
-      <button [class.active]="activeSection === 'configuracion'" (click)="setActiveSection('configuracion')">Configuración</button>
+     <button
+  *ngIf="isAdminUser"
+  [class.active]="activeSection === 'configuracion'"
+  (click)="setActiveSection('configuracion')"
+>
+  Configuración
+</button>
       <button class="logout-button" type="button" (click)="logout()">Cerrar sesión</button>
     </nav>
   </aside>
@@ -24,20 +42,17 @@
         <span>Productos</span>
         <strong>{{ products.length }}</strong>
       </article>
-
       <article>
         <span>Pedidos</span>
         <strong>{{ orders.length }}</strong>
       </article>
-
       <article>
-        <span>Favoritos</span>
-        <strong>342</strong>
+        <span>Empleados</span>
+        <strong>{{ employees.length }}</strong>
       </article>
-
       <article>
-        <span>Ventas</span>
-        <strong>$2.4M</strong>
+        <span>Roles</span>
+        <strong>{{ roles.length }}</strong>
       </article>
     </section>
 
@@ -132,7 +147,6 @@
           <div class="table-row" *ngFor="let product of products">
             <div class="product-cell">
               <img [src]="product.imageUrl" [alt]="product.name" />
-
               <div>
                 <strong>{{ product.name }}</strong>
                 <small>{{ product.material || 'Accesorio' }}</small>
@@ -209,9 +223,154 @@
       <p>Próximamente podrás crear y administrar cupones.</p>
     </section>
 
-    <section class="admin-card" *ngIf="activeSection === 'configuracion'">
-      <h3>Configuración</h3>
-      <p>Administración general del panel y usuarios.</p>
-    </section>
+    <ng-container *ngIf="activeSection === 'configuracion'">
+      <section class="admin-grid">
+        <article class="admin-card">
+          <h3>{{ editingEmployeeId ? 'Editar empleado' : 'Crear empleado' }}</h3>
+
+          <form (ngSubmit)="saveEmployee()">
+            <label>
+              Nombre
+              <input type="text" name="employeeName" [(ngModel)]="employeeForm.nombre" />
+            </label>
+
+            <label>
+              Correo
+              <input type="email" name="employeeEmail" [(ngModel)]="employeeForm.correo" />
+            </label>
+
+            <label>
+              Contraseña
+              <input
+                type="password"
+                name="employeePassword"
+                [(ngModel)]="employeeForm.password"
+                [placeholder]="editingEmployeeId ? 'Opcional para actualizar' : 'Contraseña inicial'"
+              />
+            </label>
+
+            <label>
+              Rol
+              <select name="employeeRole" [(ngModel)]="employeeForm.id_rol">
+                <option [ngValue]="0">Selecciona un rol</option>
+                <option *ngFor="let role of roles" [ngValue]="role.id_rol">
+                  {{ role.nombre }}
+                </option>
+              </select>
+            </label>
+
+            <label>
+              Estado
+              <select name="employeeStatus" [(ngModel)]="employeeForm.estado">
+                <option [ngValue]="true">Activo</option>
+                <option [ngValue]="false">Inactivo</option>
+              </select>
+            </label>
+
+            <p class="success-message" *ngIf="usersMessage">{{ usersMessage }}</p>
+
+            <button type="submit" class="black-button">
+              {{ editingEmployeeId ? 'Guardar empleado' : 'Crear empleado' }}
+            </button>
+
+            <button
+              *ngIf="editingEmployeeId"
+              type="button"
+              class="cancel-button"
+              (click)="resetEmployeeForm()"
+            >
+              Cancelar edición
+            </button>
+          </form>
+        </article>
+
+        <article class="admin-card">
+          <h3>{{ editingRoleId ? 'Editar rol' : 'Crear rol' }}</h3>
+
+          <form (ngSubmit)="saveRole()">
+            <label>
+              Nombre del rol
+              <input type="text" name="roleName" [(ngModel)]="roleForm.nombre" />
+            </label>
+
+            <label>
+              Descripción
+              <textarea name="roleDescription" [(ngModel)]="roleForm.descripcion"></textarea>
+            </label>
+
+            <p class="success-message" *ngIf="rolesMessage">{{ rolesMessage }}</p>
+
+            <button type="submit" class="black-button">
+              {{ editingRoleId ? 'Guardar rol' : 'Crear rol' }}
+            </button>
+
+            <button
+              *ngIf="editingRoleId"
+              type="button"
+              class="cancel-button"
+              (click)="resetRoleForm()"
+            >
+              Cancelar edición
+            </button>
+          </form>
+        </article>
+      </section>
+
+      <section class="admin-card products-section">
+        <h3>Empleados registrados</h3>
+
+        <div class="users-table">
+          <div class="users-header">
+            <span>Empleado</span>
+            <span>Rol</span>
+            <span>Estado</span>
+            <span>Acciones</span>
+          </div>
+
+          <div class="users-row" *ngFor="let employee of employees">
+            <div>
+              <strong>{{ employee.nombre }}</strong>
+              <small>{{ employee.correo }}</small>
+            </div>
+
+            <span>{{ employee.rol_nombre || 'Sin rol' }}</span>
+
+            <span [class.active-user]="employee.estado" [class.inactive-user]="!employee.estado">
+              {{ employee.estado ? 'Activo' : 'Inactivo' }}
+            </span>
+
+            <div class="actions">
+              <button type="button" class="edit-button" (click)="editEmployee(employee)">Editar</button>
+              <button type="button" class="cancel-button" (click)="toggleEmployeeStatus(employee)">
+                {{ employee.estado ? 'Desactivar' : 'Activar' }}
+              </button>
+              <button type="button" class="delete-button" (click)="deleteEmployee(employee)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-card products-section">
+        <h3>Roles registrados</h3>
+
+        <div class="roles-table">
+          <div class="roles-header">
+            <span>Rol</span>
+            <span>Descripción</span>
+            <span>Acciones</span>
+          </div>
+
+          <div class="roles-row" *ngFor="let role of roles">
+            <strong>{{ role.nombre }}</strong>
+            <span>{{ role.descripcion || 'Sin descripción' }}</span>
+
+            <div class="actions">
+              <button type="button" class="edit-button" (click)="editRole(role)">Editar</button>
+              <button type="button" class="delete-button" (click)="deleteRole(role)">Eliminar</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </ng-container>
   </main>
 </section>
