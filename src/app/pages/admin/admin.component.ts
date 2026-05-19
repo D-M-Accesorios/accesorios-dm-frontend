@@ -4,11 +4,9 @@ import { FormsModule } from '@angular/forms';
 
 import { Product } from '../../models/product.model';
 import { Category, Material, ProductService } from '../../services/product.service';
-import {
-  AdminOrder,
-  AdminOrdersService,
-  OrderStatus
-} from '../../services/admin-orders.service';
+import { AdminOrder, AdminOrdersService, OrderStatus } from '../../services/admin-orders.service';
+import { AdminEmployee, AdminUsersService } from '../../services/admin-users.service';
+import { AdminRole, AdminRolesService } from '../../services/admin-roles.service';
 
 @Component({
   selector: 'app-admin',
@@ -25,7 +23,15 @@ export class AdminComponent implements OnInit {
   orders: AdminOrder[] = [];
   orderStatuses: OrderStatus[] = [];
 
+  employees: AdminEmployee[] = [];
+  roles: AdminRole[] = [];
+
+  activeSection = 'productos';
+
   editingProductId: string | null = null;
+  editingEmployeeId: number | null = null;
+  editingRoleId: number | null = null;
+
   isLoading = false;
   isLoadingOrders = false;
   isUpdatingOrder = false;
@@ -33,10 +39,11 @@ export class AdminComponent implements OnInit {
   successMessage = '';
   errorMessage = '';
   ordersMessage = '';
+  usersMessage = '';
+  rolesMessage = '';
 
   selectedImageFile: File | null = null;
   previewImage = '';
-  activeSection = 'productos';
 
   newProduct = {
     nombre: '',
@@ -47,17 +54,53 @@ export class AdminComponent implements OnInit {
     idMaterial: 0
   };
 
+  employeeForm = {
+    nombre: '',
+    correo: '',
+    password: '',
+    id_rol: 0,
+    estado: true
+  };
+
+  roleForm = {
+    nombre: '',
+    descripcion: ''
+  };
+
   constructor(
     private readonly productService: ProductService,
-    private readonly adminOrdersService: AdminOrdersService
+    private readonly adminOrdersService: AdminOrdersService,
+    private readonly adminUsersService: AdminUsersService,
+    private readonly adminRolesService: AdminRolesService
   ) {}
+  get currentUserRole(): string {
+  const user = localStorage.getItem('admin_user');
 
+  if (!user) {
+    return '';
+  }
+
+  return String(JSON.parse(user).rol ?? '').trim().toUpperCase();
+}
+
+get isAdminUser(): boolean {
+  return this.currentUserRole === 'ADMIN';
+}
+get canManageProducts(): boolean {
+  return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS'].includes(this.currentUserRole);
+}
+
+get canManageOrders(): boolean {
+  return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS', 'BODEGUERO'].includes(this.currentUserRole);
+}
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
     this.loadMaterials();
     this.loadOrders();
     this.loadOrderStatuses();
+    this.loadEmployees();
+    this.loadRoles();
   }
 
   setActiveSection(section: string): void {
@@ -161,6 +204,217 @@ export class AdminComponent implements OnInit {
         this.isUpdatingOrder = false;
       }
     });
+  }
+
+  loadEmployees(): void {
+    this.adminUsersService.getEmployees().subscribe({
+      next: (employees) => {
+        this.employees = employees;
+      },
+      error: (error) => {
+        console.error('Error cargando empleados:', error);
+        this.usersMessage = 'No fue posible cargar empleados.';
+      }
+    });
+  }
+
+  saveEmployee(): void {
+    this.usersMessage = '';
+
+    if (
+      !this.employeeForm.nombre.trim() ||
+      !this.employeeForm.correo.trim() ||
+      Number(this.employeeForm.id_rol) <= 0
+    ) {
+      this.usersMessage = 'Completa nombre, correo y rol.';
+      return;
+    }
+
+    if (!this.editingEmployeeId && !this.employeeForm.password.trim()) {
+      this.usersMessage = 'La contraseña es obligatoria para crear empleado.';
+      return;
+    }
+
+    const employee = {
+      nombre: this.employeeForm.nombre,
+      correo: this.employeeForm.correo,
+      id_rol: Number(this.employeeForm.id_rol),
+      estado: this.employeeForm.estado,
+      ...(this.employeeForm.password.trim()
+        ? { password: this.employeeForm.password }
+        : {})
+    };
+
+    if (this.editingEmployeeId) {
+      this.adminUsersService.updateEmployee(this.editingEmployeeId, employee).subscribe({
+        next: () => {
+          this.usersMessage = 'Empleado actualizado correctamente.';
+          this.resetEmployeeForm();
+          this.loadEmployees();
+        },
+        error: (error) => {
+          console.error('Error actualizando empleado:', error);
+          this.usersMessage = 'No fue posible actualizar el empleado.';
+        }
+      });
+
+      return;
+    }
+
+    this.adminUsersService.createEmployee(employee).subscribe({
+      next: () => {
+        this.usersMessage = 'Empleado creado correctamente.';
+        this.resetEmployeeForm();
+        this.loadEmployees();
+      },
+      error: (error) => {
+        console.error('Error creando empleado:', error);
+        this.usersMessage = 'No fue posible crear el empleado.';
+      }
+    });
+  }
+
+  editEmployee(employee: AdminEmployee): void {
+    this.editingEmployeeId = employee.id_empleado;
+
+    this.employeeForm = {
+      nombre: employee.nombre,
+      correo: employee.correo,
+      password: '',
+      id_rol: employee.id_rol,
+      estado: employee.estado
+    };
+  }
+
+  toggleEmployeeStatus(employee: AdminEmployee): void {
+    this.adminUsersService.toggleEmployeeStatus(employee.id_empleado).subscribe({
+      next: () => {
+        this.usersMessage = 'Estado del empleado actualizado.';
+        this.loadEmployees();
+      },
+      error: (error) => {
+        console.error('Error cambiando estado:', error);
+        this.usersMessage = 'No fue posible cambiar el estado.';
+      }
+    });
+  }
+
+  deleteEmployee(employee: AdminEmployee): void {
+    const confirmDelete = confirm(`¿Eliminar empleado "${employee.nombre}"?`);
+
+    if (!confirmDelete) return;
+
+    this.adminUsersService.deleteEmployee(employee.id_empleado).subscribe({
+      next: () => {
+        this.usersMessage = 'Empleado eliminado correctamente.';
+        this.loadEmployees();
+      },
+      error: (error) => {
+        console.error('Error eliminando empleado:', error);
+        this.usersMessage = 'No fue posible eliminar el empleado.';
+      }
+    });
+  }
+
+  resetEmployeeForm(): void {
+    this.editingEmployeeId = null;
+
+    this.employeeForm = {
+      nombre: '',
+      correo: '',
+      password: '',
+      id_rol: 0,
+      estado: true
+    };
+  }
+
+  loadRoles(): void {
+    this.adminRolesService.getRoles().subscribe({
+      next: (roles) => {
+        this.roles = roles;
+      },
+      error: (error) => {
+        console.error('Error cargando roles:', error);
+        this.rolesMessage = 'No fue posible cargar roles.';
+      }
+    });
+  }
+
+  saveRole(): void {
+    this.rolesMessage = '';
+
+    if (!this.roleForm.nombre.trim()) {
+      this.rolesMessage = 'El nombre del rol es obligatorio.';
+      return;
+    }
+
+    const role = {
+      nombre: this.roleForm.nombre,
+      descripcion: this.roleForm.descripcion
+    };
+
+    if (this.editingRoleId) {
+      this.adminRolesService.updateRole(this.editingRoleId, role).subscribe({
+        next: () => {
+          this.rolesMessage = 'Rol actualizado correctamente.';
+          this.resetRoleForm();
+          this.loadRoles();
+        },
+        error: (error) => {
+          console.error('Error actualizando rol:', error);
+          this.rolesMessage = 'No fue posible actualizar el rol.';
+        }
+      });
+
+      return;
+    }
+
+    this.adminRolesService.createRole(role).subscribe({
+      next: () => {
+        this.rolesMessage = 'Rol creado correctamente.';
+        this.resetRoleForm();
+        this.loadRoles();
+      },
+      error: (error) => {
+        console.error('Error creando rol:', error);
+        this.rolesMessage = 'No fue posible crear el rol.';
+      }
+    });
+  }
+
+  editRole(role: AdminRole): void {
+    this.editingRoleId = role.id_rol;
+
+    this.roleForm = {
+      nombre: role.nombre,
+      descripcion: role.descripcion ?? ''
+    };
+  }
+
+  deleteRole(role: AdminRole): void {
+    const confirmDelete = confirm(`¿Eliminar rol "${role.nombre}"?`);
+
+    if (!confirmDelete) return;
+
+    this.adminRolesService.deleteRole(role.id_rol).subscribe({
+      next: () => {
+        this.rolesMessage = 'Rol eliminado correctamente.';
+        this.loadRoles();
+      },
+      error: (error) => {
+        console.error('Error eliminando rol:', error);
+        this.rolesMessage = 'No fue posible eliminar el rol.';
+      }
+    });
+  }
+
+  resetRoleForm(): void {
+    this.editingRoleId = null;
+
+    this.roleForm = {
+      nombre: '',
+      descripcion: ''
+    };
   }
 
   onImageSelected(event: Event): void {
