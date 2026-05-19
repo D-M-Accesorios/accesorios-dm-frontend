@@ -4,6 +4,11 @@ import { FormsModule } from '@angular/forms';
 
 import { Product } from '../../models/product.model';
 import { Category, Material, ProductService } from '../../services/product.service';
+import {
+  AdminOrder,
+  AdminOrdersService,
+  OrderStatus
+} from '../../services/admin-orders.service';
 
 @Component({
   selector: 'app-admin',
@@ -17,13 +22,21 @@ export class AdminComponent implements OnInit {
   categories: Category[] = [];
   materials: Material[] = [];
 
+  orders: AdminOrder[] = [];
+  orderStatuses: OrderStatus[] = [];
+
   editingProductId: string | null = null;
   isLoading = false;
+  isLoadingOrders = false;
+  isUpdatingOrder = false;
+
   successMessage = '';
   errorMessage = '';
+  ordersMessage = '';
 
   selectedImageFile: File | null = null;
   previewImage = '';
+  activeSection = 'productos';
 
   newProduct = {
     nombre: '',
@@ -34,44 +47,59 @@ export class AdminComponent implements OnInit {
     idMaterial: 0
   };
 
-  constructor(private readonly productService: ProductService) {}
+  constructor(
+    private readonly productService: ProductService,
+    private readonly adminOrdersService: AdminOrdersService
+  ) {}
 
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
     this.loadMaterials();
+    this.loadOrders();
+    this.loadOrderStatuses();
+  }
+
+  setActiveSection(section: string): void {
+    this.activeSection = section;
+  }
+
+  logout(): void {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('admin_user');
+    window.location.href = '/admin/login';
   }
 
   loadProducts(): void {
-  this.isLoading = true;
+    this.isLoading = true;
 
-  this.productService.getProducts().subscribe({
-    next: (products) => {
-      this.products = products;
-      this.isLoading = false;
+    this.productService.getProducts().subscribe({
+      next: (products) => {
+        this.products = products;
+        this.isLoading = false;
 
-      this.products.forEach((product, index) => {
-        this.productService.getProductById(product.id).subscribe({
-          next: (detail) => {
-            if (!detail) return;
+        this.products.forEach((product, index) => {
+          this.productService.getProductById(product.id).subscribe({
+            next: (detail) => {
+              if (!detail) return;
 
-            this.products[index] = {
-              ...this.products[index],
-              stock: detail.stock,
-              material: detail.material,
-              category: detail.category,
-              description: detail.description
-            };
-          }
+              this.products[index] = {
+                ...this.products[index],
+                stock: detail.stock,
+                material: detail.material,
+                category: detail.category,
+                description: detail.description
+              };
+            }
+          });
         });
-      });
-    },
-    error: () => {
-      this.errorMessage = 'No fue posible cargar los productos.';
-      this.isLoading = false;
-    }
-  });
-}
+      },
+      error: () => {
+        this.errorMessage = 'No fue posible cargar los productos.';
+        this.isLoading = false;
+      }
+    });
+  }
 
   loadCategories(): void {
     this.productService.getCategories().subscribe({
@@ -89,12 +117,56 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  loadOrders(): void {
+    this.isLoadingOrders = true;
+
+    this.adminOrdersService.getOrders().subscribe({
+      next: (response) => {
+        this.orders = response.pedidos;
+        this.isLoadingOrders = false;
+      },
+      error: (error) => {
+        console.error('Error cargando pedidos:', error);
+        this.isLoadingOrders = false;
+      }
+    });
+  }
+
+  loadOrderStatuses(): void {
+    this.adminOrdersService.getStatuses().subscribe({
+      next: (statuses) => {
+        this.orderStatuses = statuses;
+      },
+      error: (error) => {
+        console.error('Error cargando estados:', error);
+      }
+    });
+  }
+
+  updateOrderStatus(orderId: number, statusId: string): void {
+    if (!statusId) return;
+
+    this.ordersMessage = '';
+    this.isUpdatingOrder = true;
+
+    this.adminOrdersService.updateOrderStatus(orderId, Number(statusId)).subscribe({
+      next: () => {
+        this.ordersMessage = 'Estado actualizado correctamente.';
+        this.isUpdatingOrder = false;
+        this.loadOrders();
+      },
+      error: (error) => {
+        console.error('Error actualizando estado:', error);
+        this.ordersMessage = 'No fue posible actualizar el estado.';
+        this.isUpdatingOrder = false;
+      }
+    });
+  }
+
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
 
-    if (!input.files?.length) {
-      return;
-    }
+    if (!input.files?.length) return;
 
     const file = input.files[0];
     this.selectedImageFile = file;
@@ -158,41 +230,41 @@ export class AdminComponent implements OnInit {
       }
     });
   }
-editProduct(product: Product): void {
-  this.clearMessages();
 
-  this.productService.getProductById(product.id).subscribe({
-    next: (detail: Product | null) => {
-      if (!detail) return;
+  editProduct(product: Product): void {
+    this.clearMessages();
 
-      this.editingProductId = detail.id;
+    this.productService.getProductById(product.id).subscribe({
+      next: (detail: Product | null) => {
+        if (!detail) return;
 
-      this.newProduct = {
-        nombre: detail.name,
-        descripcion: detail.description,
-        precio: Number(detail.price),
-        stock: Number(detail.stock),
-        idCategoria: this.getCategoryIdByName(detail.category),
-        idMaterial: this.getMaterialIdByName(detail.material)
-      };
+        this.editingProductId = detail.id;
 
-      this.previewImage = detail.imageUrl;
-      this.selectedImageFile = null;
+        this.newProduct = {
+          nombre: detail.name,
+          descripcion: detail.description,
+          precio: Number(detail.price),
+          stock: Number(detail.stock),
+          idCategoria: this.getCategoryIdByName(detail.category),
+          idMaterial: this.getMaterialIdByName(detail.material)
+        };
 
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    },
-    error: (error) => {
-      console.error('Error cargando producto:', error);
-      this.errorMessage = 'No fue posible cargar el producto para edición.';
-    }
-  });
-}
+        this.previewImage = detail.imageUrl;
+        this.selectedImageFile = null;
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      },
+      error: (error) => {
+        console.error('Error cargando producto:', error);
+        this.errorMessage = 'No fue posible cargar el producto para edición.';
+      }
+    });
+  }
+
   deleteProduct(product: Product): void {
     const confirmDelete = confirm(`¿Eliminar el producto "${product.name}"?`);
 
-    if (!confirmDelete) {
-      return;
-    }
+    if (!confirmDelete) return;
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
@@ -228,9 +300,7 @@ editProduct(product: Product): void {
   }
 
   private uploadImageAndFinish(productId: string, message: string): void {
-    if (!this.selectedImageFile) {
-      return;
-    }
+    if (!this.selectedImageFile) return;
 
     this.productService.uploadProductImage(productId, this.selectedImageFile).subscribe({
       next: () => {
@@ -246,6 +316,16 @@ editProduct(product: Product): void {
     });
   }
 
+  private getCategoryIdByName(categoryName?: string): number {
+    const category = this.categories.find((item) => item.nombre === categoryName);
+    return category?.idCategoria ?? 0;
+  }
+
+  private getMaterialIdByName(materialName?: string): number {
+    const material = this.materials.find((item) => item.nombre === materialName);
+    return material?.idMaterial ?? 0;
+  }
+
   private isFormValid(): boolean {
     return (
       !!this.newProduct.nombre.trim() &&
@@ -256,21 +336,7 @@ editProduct(product: Product): void {
       Number(this.newProduct.idMaterial) > 0
     );
   }
-private getCategoryIdByName(categoryName?: string): number {
-  const category = this.categories.find(
-    (item) => item.nombre === categoryName
-  );
 
-  return category?.idCategoria ?? 0;
-}
-
-private getMaterialIdByName(materialName?: string): number {
-  const material = this.materials.find(
-    (item) => item.nombre === materialName
-  );
-
-  return material?.idMaterial ?? 0;
-}
   private resetForm(): void {
     this.editingProductId = null;
     this.selectedImageFile = null;
