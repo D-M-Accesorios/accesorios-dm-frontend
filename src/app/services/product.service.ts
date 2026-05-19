@@ -46,15 +46,15 @@ export class ProductService {
     );
   }
 
- getProductById(id: string): Observable<Product | null> {
-  return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
-    map((response) => ProductFactory.fromApi(response)),
-    catchError((error) => {
-      console.error('Error al obtener producto:', error);
-      return of(null);
-    })
-  );
-}
+  getProductById(id: string): Observable<Product | null> {
+    return this.http.get<any>(`${this.apiUrl}/${id}`).pipe(
+      map((response) => ProductFactory.fromApi(response)),
+      catchError((error) => {
+        console.error('Error al obtener producto:', error);
+        return of(null);
+      })
+    );
+  }
 
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(
@@ -74,6 +74,16 @@ export class ProductService {
 
   updateProduct(id: string, product: UpdateProductRequest): Observable<any> {
     return this.http.put(`${this.apiUrl}/${id}`, product);
+  }
+
+  uploadProductImage(productId: string, file: File): Observable<any> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.http.post(
+      `${this.apiUrl}/${productId}/imagenes/upload`,
+      formData
+    );
   }
 
   deleteProduct(id: string): Observable<any> {

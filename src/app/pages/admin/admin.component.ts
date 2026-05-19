@@ -3,13 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { Product } from '../../models/product.model';
-import {
-  Category,
-  CreateProductRequest,
-  Material,
-  ProductService,
-  UpdateProductRequest
-} from '../../services/product.service';
+import { Category, Material, ProductService } from '../../services/product.service';
 
 @Component({
   selector: 'app-admin',
@@ -22,7 +16,14 @@ export class AdminComponent implements OnInit {
   products: Product[] = [];
   categories: Category[] = [];
   materials: Material[] = [];
+
   editingProductId: string | null = null;
+  isLoading = false;
+  successMessage = '';
+  errorMessage = '';
+
+  selectedImageFile: File | null = null;
+  previewImage = '';
 
   newProduct = {
     nombre: '',
@@ -42,27 +43,32 @@ export class AdminComponent implements OnInit {
   }
 
   loadProducts(): void {
+  this.isLoading = true;
+
   this.productService.getProducts().subscribe({
     next: (products) => {
       this.products = products;
+      this.isLoading = false;
 
       this.products.forEach((product, index) => {
         this.productService.getProductById(product.id).subscribe({
-          next: (detail: any) => {
-            if (!detail) {
-              return;
-            }
+          next: (detail) => {
+            if (!detail) return;
 
             this.products[index] = {
               ...this.products[index],
-              description: detail.descripcion ?? this.products[index].description,
-              stock: Number(detail.stock ?? this.products[index].stock),
-              category: detail.categoria?.nombre ?? this.products[index].category,
-              material: detail.material?.nombre ?? this.products[index].material
+              stock: detail.stock,
+              material: detail.material,
+              category: detail.category,
+              description: detail.description
             };
           }
         });
       });
+    },
+    error: () => {
+      this.errorMessage = 'No fue posible cargar los productos.';
+      this.isLoading = false;
     }
   });
 }
@@ -83,82 +89,103 @@ export class AdminComponent implements OnInit {
     });
   }
 
+  onImageSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (!input.files?.length) {
+      return;
+    }
+
+    const file = input.files[0];
+    this.selectedImageFile = file;
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      this.previewImage = reader.result as string;
+    };
+
+    reader.readAsDataURL(file);
+  }
+
   saveProduct(): void {
+    this.clearMessages();
+
     if (!this.isFormValid()) {
-      alert('Completa todos los campos. Precio y stock deben ser mayores a 0.');
+      this.errorMessage = 'Completa todos los campos obligatorios.';
       return;
     }
 
     const product = this.buildProductRequest();
 
     if (this.editingProductId) {
-      this.productService
-        .updateProduct(this.editingProductId, product as UpdateProductRequest)
-        .subscribe({
-          next: () => {
-            this.resetForm();
-            this.loadProducts();
-          },
-          error: (error) => {
-            console.error('Error al actualizar producto:', error);
+      this.productService.updateProduct(this.editingProductId, product).subscribe({
+        next: () => {
+          if (this.selectedImageFile) {
+            this.uploadImageAndFinish(this.editingProductId!, 'Producto actualizado correctamente.');
+            return;
           }
-        });
+
+          this.successMessage = 'Producto actualizado correctamente.';
+          this.resetForm();
+          this.loadProducts();
+        },
+        error: (error) => {
+          console.error('Error actualizando producto:', error);
+          this.errorMessage = 'No fue posible actualizar el producto.';
+        }
+      });
 
       return;
     }
 
     this.productService.createProduct(product).subscribe({
-      next: () => {
+      next: (response: any) => {
+        const productId = String(response.idProducto ?? response.id ?? '');
+
+        if (this.selectedImageFile && productId) {
+          this.uploadImageAndFinish(productId, 'Producto creado correctamente.');
+          return;
+        }
+
+        this.successMessage = 'Producto creado correctamente.';
         this.resetForm();
         this.loadProducts();
       },
       error: (error) => {
-        console.error('Error al crear producto:', error);
+        console.error('Error creando producto:', error);
+        this.errorMessage = 'No fue posible crear el producto.';
       }
     });
   }
-
 editProduct(product: Product): void {
-  this.productService.getProductById(product.id).subscribe({
-    next: (response: any) => {
-      if (!response) {
-        return;
-      }
+  this.clearMessages();
 
-      this.editingProductId = String(response.idProducto ?? response.id ?? product.id);
+  this.productService.getProductById(product.id).subscribe({
+    next: (detail: Product | null) => {
+      if (!detail) return;
+
+      this.editingProductId = detail.id;
 
       this.newProduct = {
-        nombre: response.nombre ?? '',
-        descripcion: response.descripcion ?? '',
-        precio: Number(response.precio ?? 0),
-        stock: Number(response.stock ?? 0),
-        idCategoria: Number(response.categoria?.idCategoria ?? 0),
-        idMaterial: Number(response.material?.idMaterial ?? 0)
+        nombre: detail.name,
+        descripcion: detail.description,
+        precio: Number(detail.price),
+        stock: Number(detail.stock),
+        idCategoria: this.getCategoryIdByName(detail.category),
+        idMaterial: this.getMaterialIdByName(detail.material)
       };
+
+      this.previewImage = detail.imageUrl;
+      this.selectedImageFile = null;
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     },
     error: (error) => {
-      console.error('Error cargando detalle del producto:', error);
+      console.error('Error cargando producto:', error);
+      this.errorMessage = 'No fue posible cargar el producto para edición.';
     }
   });
-}
-
-  cancelEdit(): void {
-    this.resetForm();
-  }
-private findCategoryId(categoryName?: string): number {
-  const category = this.categories.find(
-    (item) => item.nombre === categoryName
-  );
-
-  return category?.idCategoria ?? 0;
-}
-
-private findMaterialId(materialName?: string): number {
-  const material = this.materials.find(
-    (item) => item.nombre === materialName
-  );
-
-  return material?.idMaterial ?? 0;
 }
   deleteProduct(product: Product): void {
     const confirmDelete = confirm(`¿Eliminar el producto "${product.name}"?`);
@@ -169,10 +196,52 @@ private findMaterialId(materialName?: string): number {
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
+        this.successMessage = 'Producto eliminado correctamente.';
         this.loadProducts();
       },
       error: (error) => {
-        console.error('Error al eliminar producto:', error);
+        console.error('Error eliminando producto:', error);
+        this.errorMessage = 'No fue posible eliminar el producto.';
+      }
+    });
+  }
+
+  cancelEdit(): void {
+    this.resetForm();
+    this.clearMessages();
+  }
+
+  private buildProductRequest() {
+    return {
+      nombre: this.newProduct.nombre,
+      descripcion: this.newProduct.descripcion,
+      precio: Number(this.newProduct.precio),
+      stock: Number(this.newProduct.stock),
+      categoria: {
+        idCategoria: Number(this.newProduct.idCategoria)
+      },
+      material: {
+        idMaterial: Number(this.newProduct.idMaterial)
+      },
+      estado: true
+    };
+  }
+
+  private uploadImageAndFinish(productId: string, message: string): void {
+    if (!this.selectedImageFile) {
+      return;
+    }
+
+    this.productService.uploadProductImage(productId, this.selectedImageFile).subscribe({
+      next: () => {
+        this.successMessage = message;
+        this.resetForm();
+        this.loadProducts();
+      },
+      error: (error) => {
+        console.error('Error subiendo imagen:', error);
+        this.errorMessage = 'El producto se guardó, pero la imagen no pudo subirse.';
+        this.loadProducts();
       }
     });
   }
@@ -187,21 +256,26 @@ private findMaterialId(materialName?: string): number {
       Number(this.newProduct.idMaterial) > 0
     );
   }
+private getCategoryIdByName(categoryName?: string): number {
+  const category = this.categories.find(
+    (item) => item.nombre === categoryName
+  );
 
-  private buildProductRequest(): CreateProductRequest {
-    return {
-      nombre: this.newProduct.nombre,
-      descripcion: this.newProduct.descripcion,
-      precio: Number(this.newProduct.precio),
-      stock: Number(this.newProduct.stock),
-      categoria: { idCategoria: Number(this.newProduct.idCategoria) },
-      material: { idMaterial: Number(this.newProduct.idMaterial) },
-      estado: true
-    };
-  }
+  return category?.idCategoria ?? 0;
+}
 
+private getMaterialIdByName(materialName?: string): number {
+  const material = this.materials.find(
+    (item) => item.nombre === materialName
+  );
+
+  return material?.idMaterial ?? 0;
+}
   private resetForm(): void {
     this.editingProductId = null;
+    this.selectedImageFile = null;
+    this.previewImage = '';
+
     this.newProduct = {
       nombre: '',
       descripcion: '',
@@ -210,5 +284,10 @@ private findMaterialId(materialName?: string): number {
       idCategoria: 0,
       idMaterial: 0
     };
+  }
+
+  private clearMessages(): void {
+    this.successMessage = '';
+    this.errorMessage = '';
   }
 }
