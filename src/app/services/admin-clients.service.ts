@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AdminClient {
   id_cliente: number;
@@ -14,7 +15,7 @@ export interface AdminClient {
   providedIn: 'root'
 })
 export class AdminClientsService {
-  private readonly apiUrl = 'http://localhost:8889/api/v1/clientes/';
+  private readonly apiUrl = `${environment.apiBaseUrl}/security/clientes/`;
 
   constructor(private readonly http: HttpClient) {}
 

@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Promotion {
   idPromocion: number;
@@ -25,7 +26,7 @@ export interface PromotionRequest {
   providedIn: 'root'
 })
 export class AdminPromotionsService {
- private readonly apiUrl = 'http://localhost:8001/api/v1/inventory/promociones';
+ private readonly apiUrl = `${environment.apiBaseUrl}/inventory/promociones`;
 
   constructor(private readonly http: HttpClient) {}
 
