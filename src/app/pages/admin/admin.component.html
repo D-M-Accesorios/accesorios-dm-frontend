@@ -18,7 +18,13 @@
       <button *ngIf="isAdminUser" [class.active]="activeSection === 'cupones'" (click)="setActiveSection('cupones')">
         Promociones
       </button>
-
+      <button
+        *ngIf="isAdminUser"
+        [class.active]="activeSection === 'clientes'"
+        (click)="setActiveSection('clientes')"
+      >
+        Clientes
+      </button>
       <button *ngIf="isAdminUser" [class.active]="activeSection === 'configuracion'" (click)="setActiveSection('configuracion')">
         Configuración
       </button>
@@ -345,7 +351,79 @@
         <p *ngIf="promotions.length === 0">No hay promociones registradas.</p>
       </div>
     </section>
+    <section class="admin-card" *ngIf="activeSection === 'clientes' && isAdminUser">
+  <h3>Clientes registrados</h3>
 
+  <p class="success-message" *ngIf="clientsMessage">{{ clientsMessage }}</p>
+
+  <div class="admin-grid" *ngIf="editingClientId">
+    <article class="admin-card">
+      <h3>Editar cliente</h3>
+
+      <form (ngSubmit)="saveClient()">
+        <label>
+          Nombre
+          <input type="text" name="clientName" [(ngModel)]="clientForm.nombre" />
+        </label>
+
+        <label>
+          Correo
+          <input type="email" name="clientEmail" [(ngModel)]="clientForm.correo" />
+        </label>
+
+        <label>
+          Teléfono
+          <input type="text" name="clientPhone" [(ngModel)]="clientForm.telefono" />
+        </label>
+
+        <label>
+          Estado
+          <select name="clientStatus" [(ngModel)]="clientForm.estado">
+            <option [ngValue]="true">Activo</option>
+            <option [ngValue]="false">Inactivo</option>
+          </select>
+        </label>
+
+        <button type="submit" class="black-button">Guardar cliente</button>
+
+        <button type="button" class="cancel-button" (click)="resetClientForm()">
+          Cancelar
+        </button>
+      </form>
+    </article>
+  </div>
+
+  <div class="users-table">
+    <div class="users-header">
+      <span>Cliente</span>
+      <span>Correo</span>
+      <span>Estado</span>
+      <span>Acciones</span>
+    </div>
+
+    <div class="users-row" *ngFor="let client of clients">
+      <strong>{{ client.nombre }}</strong>
+      <span>{{ client.correo }}</span>
+
+      <span
+        [class.active-user]="client.estado !== false"
+        [class.inactive-user]="client.estado === false"
+      >
+        {{ client.estado === false ? 'Inactivo' : 'Activo' }}
+      </span>
+
+      <div class="actions">
+        <button type="button" class="edit-button" (click)="editClient(client)">
+          Editar
+        </button>
+
+        <button type="button" class="delete-button" (click)="deleteClient(client)">
+          Eliminar
+         </button>
+        </div>
+      </div>
+    </div>
+  </section>
     <ng-container *ngIf="activeSection === 'configuracion' && isAdminUser">
       <section class="admin-grid">
         <article class="admin-card">

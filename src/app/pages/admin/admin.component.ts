@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-
+import { AdminClient, AdminClientsService } from '../../services/admin-clients.service';
 import { Product } from '../../models/product.model';
 import { Category, Material, ProductService } from '../../services/product.service';
 import { AdminOrder, AdminOrdersService, OrderStatus } from '../../services/admin-orders.service';
@@ -82,13 +82,24 @@ export class AdminComponent implements OnInit {
     idPromocion: 0,
     idProducto: 0
   };
+      clients: AdminClient[] = [];
+    editingClientId: number | null = null;
+    clientsMessage = '';
+
+    clientForm = {
+      nombre: '',
+      correo: '',
+      telefono: '',
+      estado: true
+    };
 
   constructor(
     private readonly productService: ProductService,
     private readonly adminOrdersService: AdminOrdersService,
     private readonly adminUsersService: AdminUsersService,
     private readonly adminRolesService: AdminRolesService,
-    private readonly adminPromotionsService: AdminPromotionsService
+    private readonly adminPromotionsService: AdminPromotionsService,
+    private readonly adminClientsService: AdminClientsService
   ) {}
 
   get currentUserRole(): string {
@@ -118,6 +129,7 @@ export class AdminComponent implements OnInit {
     this.loadEmployees();
     this.loadRoles();
     this.loadPromotions();
+    this.loadClients();
   }
 
   setActiveSection(section: string): void {
@@ -152,7 +164,9 @@ export class AdminComponent implements OnInit {
     ) {
       this.promotionsMessage = 'Completa los campos obligatorios.';
       return;
+
     }
+    
 
     const promotion = {
       nombre: this.promotionForm.nombre,
@@ -606,6 +620,67 @@ export class AdminComponent implements OnInit {
     this.resetForm();
     this.clearMessages();
   }
+  loadClients(): void {
+  this.adminClientsService.getClients().subscribe({
+    next: (clients) => {
+      this.clients = clients;
+    },
+    error: () => {
+      this.clientsMessage = 'No fue posible cargar clientes.';
+    }
+  });
+}
+
+editClient(client: AdminClient): void {
+  this.editingClientId = client.id_cliente;
+
+  this.clientForm = {
+    nombre: client.nombre,
+    correo: client.correo,
+    telefono: client.telefono ?? '',
+    estado: client.estado ?? true
+  };
+}
+
+saveClient(): void {
+  if (!this.editingClientId) return;
+
+  this.adminClientsService.updateClient(this.editingClientId, this.clientForm).subscribe({
+    next: () => {
+      this.clientsMessage = 'Cliente actualizado correctamente.';
+      this.resetClientForm();
+      this.loadClients();
+    },
+    error: () => {
+      this.clientsMessage = 'No fue posible actualizar cliente.';
+    }
+  });
+}
+
+deleteClient(client: AdminClient): void {
+  if (!confirm(`¿Eliminar cliente "${client.nombre}"?`)) return;
+
+  this.adminClientsService.deleteClient(client.id_cliente).subscribe({
+    next: () => {
+      this.clientsMessage = 'Cliente eliminado correctamente.';
+      this.loadClients();
+    },
+    error: () => {
+      this.clientsMessage = 'No fue posible eliminar cliente.';
+    }
+  });
+}
+
+resetClientForm(): void {
+  this.editingClientId = null;
+
+  this.clientForm = {
+    nombre: '',
+    correo: '',
+    telefono: '',
+    estado: true
+  };
+}
 
   private buildProductRequest() {
     return {
