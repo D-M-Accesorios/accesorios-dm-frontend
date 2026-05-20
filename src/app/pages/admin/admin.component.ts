@@ -7,6 +7,7 @@ import { Category, Material, ProductService } from '../../services/product.servi
 import { AdminOrder, AdminOrdersService, OrderStatus } from '../../services/admin-orders.service';
 import { AdminEmployee, AdminUsersService } from '../../services/admin-users.service';
 import { AdminRole, AdminRolesService } from '../../services/admin-roles.service';
+import { AdminPromotionsService, Promotion } from '../../services/admin-promotions.service';
 
 @Component({
   selector: 'app-admin',
@@ -19,18 +20,18 @@ export class AdminComponent implements OnInit {
   products: Product[] = [];
   categories: Category[] = [];
   materials: Material[] = [];
-
   orders: AdminOrder[] = [];
   orderStatuses: OrderStatus[] = [];
-
   employees: AdminEmployee[] = [];
   roles: AdminRole[] = [];
+  promotions: Promotion[] = [];
 
   activeSection = 'productos';
 
   editingProductId: string | null = null;
   editingEmployeeId: number | null = null;
   editingRoleId: number | null = null;
+  editingPromotionId: number | null = null;
 
   isLoading = false;
   isLoadingOrders = false;
@@ -41,6 +42,7 @@ export class AdminComponent implements OnInit {
   ordersMessage = '';
   usersMessage = '';
   rolesMessage = '';
+  promotionsMessage = '';
 
   selectedImageFile: File | null = null;
   previewImage = '';
@@ -67,32 +69,46 @@ export class AdminComponent implements OnInit {
     descripcion: ''
   };
 
+  promotionForm = {
+    nombre: '',
+    descripcion: '',
+    porcentajeDescuento: 0,
+    fechaInicio: '',
+    fechaFin: '',
+    estado: true
+  };
+
+  promotionAssignment = {
+    idPromocion: 0,
+    idProducto: 0
+  };
+
   constructor(
     private readonly productService: ProductService,
     private readonly adminOrdersService: AdminOrdersService,
     private readonly adminUsersService: AdminUsersService,
-    private readonly adminRolesService: AdminRolesService
+    private readonly adminRolesService: AdminRolesService,
+    private readonly adminPromotionsService: AdminPromotionsService
   ) {}
-  get currentUserRole(): string {
-  const user = localStorage.getItem('admin_user');
 
-  if (!user) {
-    return '';
+  get currentUserRole(): string {
+    const user = localStorage.getItem('admin_user');
+    if (!user) return '';
+    return String(JSON.parse(user).rol ?? '').trim().toUpperCase();
   }
 
-  return String(JSON.parse(user).rol ?? '').trim().toUpperCase();
-}
+  get isAdminUser(): boolean {
+    return this.currentUserRole === 'ADMIN';
+  }
 
-get isAdminUser(): boolean {
-  return this.currentUserRole === 'ADMIN';
-}
-get canManageProducts(): boolean {
-  return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS'].includes(this.currentUserRole);
-}
+  get canManageProducts(): boolean {
+    return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS'].includes(this.currentUserRole);
+  }
 
-get canManageOrders(): boolean {
-  return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS', 'BODEGUERO'].includes(this.currentUserRole);
-}
+  get canManageOrders(): boolean {
+    return ['ADMIN', 'VENDEDOR', 'ASESOR DE VENTAS', 'BODEGUERO'].includes(this.currentUserRole);
+  }
+
   ngOnInit(): void {
     this.loadProducts();
     this.loadCategories();
@@ -101,6 +117,7 @@ get canManageOrders(): boolean {
     this.loadOrderStatuses();
     this.loadEmployees();
     this.loadRoles();
+    this.loadPromotions();
   }
 
   setActiveSection(section: string): void {
@@ -111,6 +128,126 @@ get canManageOrders(): boolean {
     localStorage.removeItem('access_token');
     localStorage.removeItem('admin_user');
     window.location.href = '/admin/login';
+  }
+
+  loadPromotions(): void {
+    this.adminPromotionsService.getPromotions().subscribe({
+      next: (promotions) => {
+        this.promotions = promotions;
+      },
+      error: () => {
+        this.promotionsMessage = 'No fue posible cargar promociones.';
+      }
+    });
+  }
+
+  savePromotion(): void {
+    this.promotionsMessage = '';
+
+    if (
+      !this.promotionForm.nombre.trim() ||
+      Number(this.promotionForm.porcentajeDescuento) <= 0 ||
+      !this.promotionForm.fechaInicio ||
+      !this.promotionForm.fechaFin
+    ) {
+      this.promotionsMessage = 'Completa los campos obligatorios.';
+      return;
+    }
+
+    const promotion = {
+      nombre: this.promotionForm.nombre,
+      descripcion: this.promotionForm.descripcion,
+      porcentajeDescuento: Number(this.promotionForm.porcentajeDescuento),
+      fechaInicio: `${this.promotionForm.fechaInicio}:00`,
+      fechaFin: `${this.promotionForm.fechaFin}:00`,
+      activo: this.promotionForm.estado
+    };
+
+    if (this.editingPromotionId) {
+      this.adminPromotionsService.updatePromotion(this.editingPromotionId, promotion).subscribe({
+        next: () => {
+          this.promotionsMessage = 'Promoción actualizada correctamente.';
+          this.resetPromotionForm();
+          this.loadPromotions();
+        },
+        error: () => {
+          this.promotionsMessage = 'No fue posible actualizar promoción.';
+        }
+      });
+      return;
+    }
+
+    this.adminPromotionsService.createPromotion(promotion).subscribe({
+      next: () => {
+        this.promotionsMessage = 'Promoción creada correctamente.';
+        this.resetPromotionForm();
+        this.loadPromotions();
+      },
+      error: () => {
+        this.promotionsMessage = 'No fue posible crear promoción.';
+      }
+    });
+  }
+
+  editPromotion(promotion: Promotion): void {
+    this.editingPromotionId = promotion.idPromocion;
+
+    this.promotionForm = {
+      nombre: promotion.nombre,
+      descripcion: promotion.descripcion,
+      porcentajeDescuento: promotion.porcentajeDescuento,
+      fechaInicio: promotion.fechaInicio?.slice(0, 16),
+      fechaFin: promotion.fechaFin?.slice(0, 16),
+      estado: promotion.activo
+    };
+  }
+
+  deletePromotion(promotion: Promotion): void {
+    if (!confirm(`¿Eliminar promoción "${promotion.nombre}"?`)) return;
+
+    this.adminPromotionsService.deletePromotion(promotion.idPromocion).subscribe({
+      next: () => {
+        this.promotionsMessage = 'Promoción eliminada correctamente.';
+        this.loadPromotions();
+      },
+      error: () => {
+        this.promotionsMessage = 'No fue posible eliminar promoción.';
+      }
+    });
+  }
+
+  assignPromotionToProduct(): void {
+    if (!this.promotionAssignment.idPromocion || !this.promotionAssignment.idProducto) {
+      this.promotionsMessage = 'Selecciona promoción y producto.';
+      return;
+    }
+
+    this.adminPromotionsService
+      .assignPromotionToProduct(
+        Number(this.promotionAssignment.idPromocion),
+        Number(this.promotionAssignment.idProducto)
+      )
+      .subscribe({
+        next: () => {
+          this.promotionsMessage = 'Promoción asignada correctamente.';
+          this.loadProducts();
+        },
+        error: () => {
+          this.promotionsMessage = 'No fue posible asignar promoción.';
+        }
+      });
+  }
+
+  resetPromotionForm(): void {
+    this.editingPromotionId = null;
+    this.promotionForm = {
+      nombre: '',
+      descripcion: '',
+      porcentajeDescuento: 0,
+      fechaInicio: '',
+      fechaFin: '',
+      estado: true
+    };
   }
 
   loadProducts(): void {
@@ -168,8 +305,7 @@ get canManageOrders(): boolean {
         this.orders = response.pedidos;
         this.isLoadingOrders = false;
       },
-      error: (error) => {
-        console.error('Error cargando pedidos:', error);
+      error: () => {
         this.isLoadingOrders = false;
       }
     });
@@ -179,9 +315,6 @@ get canManageOrders(): boolean {
     this.adminOrdersService.getStatuses().subscribe({
       next: (statuses) => {
         this.orderStatuses = statuses;
-      },
-      error: (error) => {
-        console.error('Error cargando estados:', error);
       }
     });
   }
@@ -198,8 +331,7 @@ get canManageOrders(): boolean {
         this.isUpdatingOrder = false;
         this.loadOrders();
       },
-      error: (error) => {
-        console.error('Error actualizando estado:', error);
+      error: () => {
         this.ordersMessage = 'No fue posible actualizar el estado.';
         this.isUpdatingOrder = false;
       }
@@ -211,8 +343,7 @@ get canManageOrders(): boolean {
       next: (employees) => {
         this.employees = employees;
       },
-      error: (error) => {
-        console.error('Error cargando empleados:', error);
+      error: () => {
         this.usersMessage = 'No fue posible cargar empleados.';
       }
     });
@@ -221,11 +352,7 @@ get canManageOrders(): boolean {
   saveEmployee(): void {
     this.usersMessage = '';
 
-    if (
-      !this.employeeForm.nombre.trim() ||
-      !this.employeeForm.correo.trim() ||
-      Number(this.employeeForm.id_rol) <= 0
-    ) {
+    if (!this.employeeForm.nombre.trim() || !this.employeeForm.correo.trim() || Number(this.employeeForm.id_rol) <= 0) {
       this.usersMessage = 'Completa nombre, correo y rol.';
       return;
     }
@@ -240,9 +367,7 @@ get canManageOrders(): boolean {
       correo: this.employeeForm.correo,
       id_rol: Number(this.employeeForm.id_rol),
       estado: this.employeeForm.estado,
-      ...(this.employeeForm.password.trim()
-        ? { password: this.employeeForm.password }
-        : {})
+      ...(this.employeeForm.password.trim() ? { password: this.employeeForm.password } : {})
     };
 
     if (this.editingEmployeeId) {
@@ -252,12 +377,10 @@ get canManageOrders(): boolean {
           this.resetEmployeeForm();
           this.loadEmployees();
         },
-        error: (error) => {
-          console.error('Error actualizando empleado:', error);
+        error: () => {
           this.usersMessage = 'No fue posible actualizar el empleado.';
         }
       });
-
       return;
     }
 
@@ -267,8 +390,7 @@ get canManageOrders(): boolean {
         this.resetEmployeeForm();
         this.loadEmployees();
       },
-      error: (error) => {
-        console.error('Error creando empleado:', error);
+      error: () => {
         this.usersMessage = 'No fue posible crear el empleado.';
       }
     });
@@ -276,7 +398,6 @@ get canManageOrders(): boolean {
 
   editEmployee(employee: AdminEmployee): void {
     this.editingEmployeeId = employee.id_empleado;
-
     this.employeeForm = {
       nombre: employee.nombre,
       correo: employee.correo,
@@ -291,34 +412,23 @@ get canManageOrders(): boolean {
       next: () => {
         this.usersMessage = 'Estado del empleado actualizado.';
         this.loadEmployees();
-      },
-      error: (error) => {
-        console.error('Error cambiando estado:', error);
-        this.usersMessage = 'No fue posible cambiar el estado.';
       }
     });
   }
 
   deleteEmployee(employee: AdminEmployee): void {
-    const confirmDelete = confirm(`¿Eliminar empleado "${employee.nombre}"?`);
-
-    if (!confirmDelete) return;
+    if (!confirm(`¿Eliminar empleado "${employee.nombre}"?`)) return;
 
     this.adminUsersService.deleteEmployee(employee.id_empleado).subscribe({
       next: () => {
         this.usersMessage = 'Empleado eliminado correctamente.';
         this.loadEmployees();
-      },
-      error: (error) => {
-        console.error('Error eliminando empleado:', error);
-        this.usersMessage = 'No fue posible eliminar el empleado.';
       }
     });
   }
 
   resetEmployeeForm(): void {
     this.editingEmployeeId = null;
-
     this.employeeForm = {
       nombre: '',
       correo: '',
@@ -333,8 +443,7 @@ get canManageOrders(): boolean {
       next: (roles) => {
         this.roles = roles;
       },
-      error: (error) => {
-        console.error('Error cargando roles:', error);
+      error: () => {
         this.rolesMessage = 'No fue posible cargar roles.';
       }
     });
@@ -359,13 +468,8 @@ get canManageOrders(): boolean {
           this.rolesMessage = 'Rol actualizado correctamente.';
           this.resetRoleForm();
           this.loadRoles();
-        },
-        error: (error) => {
-          console.error('Error actualizando rol:', error);
-          this.rolesMessage = 'No fue posible actualizar el rol.';
         }
       });
-
       return;
     }
 
@@ -375,8 +479,7 @@ get canManageOrders(): boolean {
         this.resetRoleForm();
         this.loadRoles();
       },
-      error: (error) => {
-        console.error('Error creando rol:', error);
+      error: () => {
         this.rolesMessage = 'No fue posible crear el rol.';
       }
     });
@@ -384,7 +487,6 @@ get canManageOrders(): boolean {
 
   editRole(role: AdminRole): void {
     this.editingRoleId = role.id_rol;
-
     this.roleForm = {
       nombre: role.nombre,
       descripcion: role.descripcion ?? ''
@@ -392,25 +494,18 @@ get canManageOrders(): boolean {
   }
 
   deleteRole(role: AdminRole): void {
-    const confirmDelete = confirm(`¿Eliminar rol "${role.nombre}"?`);
-
-    if (!confirmDelete) return;
+    if (!confirm(`¿Eliminar rol "${role.nombre}"?`)) return;
 
     this.adminRolesService.deleteRole(role.id_rol).subscribe({
       next: () => {
         this.rolesMessage = 'Rol eliminado correctamente.';
         this.loadRoles();
-      },
-      error: (error) => {
-        console.error('Error eliminando rol:', error);
-        this.rolesMessage = 'No fue posible eliminar el rol.';
       }
     });
   }
 
   resetRoleForm(): void {
     this.editingRoleId = null;
-
     this.roleForm = {
       nombre: '',
       descripcion: ''
@@ -419,19 +514,15 @@ get canManageOrders(): boolean {
 
   onImageSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-
     if (!input.files?.length) return;
 
-    const file = input.files[0];
-    this.selectedImageFile = file;
+    this.selectedImageFile = input.files[0];
 
     const reader = new FileReader();
-
     reader.onload = () => {
       this.previewImage = reader.result as string;
     };
-
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(this.selectedImageFile);
   }
 
   saveProduct(): void {
@@ -455,13 +546,8 @@ get canManageOrders(): boolean {
           this.successMessage = 'Producto actualizado correctamente.';
           this.resetForm();
           this.loadProducts();
-        },
-        error: (error) => {
-          console.error('Error actualizando producto:', error);
-          this.errorMessage = 'No fue posible actualizar el producto.';
         }
       });
-
       return;
     }
 
@@ -477,10 +563,6 @@ get canManageOrders(): boolean {
         this.successMessage = 'Producto creado correctamente.';
         this.resetForm();
         this.loadProducts();
-      },
-      error: (error) => {
-        console.error('Error creando producto:', error);
-        this.errorMessage = 'No fue posible crear el producto.';
       }
     });
   }
@@ -493,7 +575,6 @@ get canManageOrders(): boolean {
         if (!detail) return;
 
         this.editingProductId = detail.id;
-
         this.newProduct = {
           nombre: detail.name,
           descripcion: detail.description,
@@ -505,29 +586,18 @@ get canManageOrders(): boolean {
 
         this.previewImage = detail.imageUrl;
         this.selectedImageFile = null;
-
         window.scrollTo({ top: 0, behavior: 'smooth' });
-      },
-      error: (error) => {
-        console.error('Error cargando producto:', error);
-        this.errorMessage = 'No fue posible cargar el producto para edición.';
       }
     });
   }
 
   deleteProduct(product: Product): void {
-    const confirmDelete = confirm(`¿Eliminar el producto "${product.name}"?`);
-
-    if (!confirmDelete) return;
+    if (!confirm(`¿Eliminar el producto "${product.name}"?`)) return;
 
     this.productService.deleteProduct(product.id).subscribe({
       next: () => {
         this.successMessage = 'Producto eliminado correctamente.';
         this.loadProducts();
-      },
-      error: (error) => {
-        console.error('Error eliminando producto:', error);
-        this.errorMessage = 'No fue posible eliminar el producto.';
       }
     });
   }
@@ -543,12 +613,8 @@ get canManageOrders(): boolean {
       descripcion: this.newProduct.descripcion,
       precio: Number(this.newProduct.precio),
       stock: Number(this.newProduct.stock),
-      categoria: {
-        idCategoria: Number(this.newProduct.idCategoria)
-      },
-      material: {
-        idMaterial: Number(this.newProduct.idMaterial)
-      },
+      categoria: { idCategoria: Number(this.newProduct.idCategoria) },
+      material: { idMaterial: Number(this.newProduct.idMaterial) },
       estado: true
     };
   }
@@ -561,23 +627,16 @@ get canManageOrders(): boolean {
         this.successMessage = message;
         this.resetForm();
         this.loadProducts();
-      },
-      error: (error) => {
-        console.error('Error subiendo imagen:', error);
-        this.errorMessage = 'El producto se guardó, pero la imagen no pudo subirse.';
-        this.loadProducts();
       }
     });
   }
 
   private getCategoryIdByName(categoryName?: string): number {
-    const category = this.categories.find((item) => item.nombre === categoryName);
-    return category?.idCategoria ?? 0;
+    return this.categories.find((item) => item.nombre === categoryName)?.idCategoria ?? 0;
   }
 
   private getMaterialIdByName(materialName?: string): number {
-    const material = this.materials.find((item) => item.nombre === materialName);
-    return material?.idMaterial ?? 0;
+    return this.materials.find((item) => item.nombre === materialName)?.idMaterial ?? 0;
   }
 
   private isFormValid(): boolean {

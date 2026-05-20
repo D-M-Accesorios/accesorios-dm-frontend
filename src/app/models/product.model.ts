@@ -3,8 +3,11 @@ export interface Product {
   name: string;
   description: string;
   price: number;
+  originalPrice?: number;
+  discountPercentage?: number;
+  promotionName?: string;
   stock: number;
- imageUrl: string;
+  imageUrl: string;
   category?: string;
   material?: string;
 }
