@@ -21,23 +21,26 @@ function resolveImage(data: any): string {
 export class ProductFactory {
   static fromApi(data: any): Product {
     return {
-      id: String(data.idProducto ?? data.id ?? data.productoId ?? ''),
-      name: data.nombre ?? data.name ?? 'Producto sin nombre',
-      description: data.descripcion ?? data.description ?? '',
-      price: Number(data.precio ?? data.price ?? data.precioConDescuento ?? 0),
-      stock: Number(data.stock ?? data.stockDisponible ?? data.cantidad ?? 0),
-      imageUrl: resolveImage(data),
-      category:
-        data.categoria?.nombre ??
-        data.categoriaNombre ??
-        data.category ??
-        '',
-      material:
-        data.material?.nombre ??
-        data.materialNombre ??
-        data.material ??
-        ''
-    };
+  id: String(data.idProducto ?? data.id ?? data.productoId ?? ''),
+  name: data.nombre ?? data.name ?? 'Producto sin nombre',
+  description: data.descripcion ?? data.description ?? '',
+  price: Number(data.precioConDescuento ?? data.precio ?? data.price ?? 0),
+  originalPrice: data.precioConDescuento ? Number(data.precio) : undefined,
+  discountPercentage: data.promocionActiva?.porcentajeDescuento,
+  promotionName: data.promocionActiva?.nombre,
+  stock: Number(data.stock ?? data.stockDisponible ?? data.cantidad ?? 0),
+  imageUrl: resolveImage(data),
+  category:
+    data.categoria?.nombre ??
+    data.categoriaNombre ??
+    data.category ??
+    '',
+  material:
+    data.material?.nombre ??
+    data.materialNombre ??
+    data.material ??
+    ''
+};
   }
 
   static fromApiList(data: any[]): Product[] {
