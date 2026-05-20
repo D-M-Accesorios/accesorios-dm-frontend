@@ -20,12 +20,18 @@
       *ngFor="let product of products"
       [routerLink]="['/producto', product.id]"
     >
-      <img
-        [src]="product.imageUrl && !product.imageUrl.includes('product-placeholder.png')
-          ? product.imageUrl
-          : 'https://placehold.co/300x200?text=Producto'"
-        [alt]="product.name"
-      />
+      <div class="product-image-wrapper">
+        <span class="discount-label" *ngIf="product.discountPercentage">
+          -{{ product.discountPercentage | number:'1.0-0' }}%
+        </span>
+
+        <img
+          [src]="product.imageUrl && !product.imageUrl.includes('product-placeholder.png')
+            ? product.imageUrl
+            : 'https://placehold.co/300x200?text=Producto'"
+          [alt]="product.name"
+        />
+      </div>
 
       <div class="product-info">
         <h2>{{ product.name }}</h2>
@@ -34,9 +40,26 @@
           {{ product.description || product.category || 'Accesorio exclusivo' }}
         </p>
 
-        <strong>
-          ${{ product.price | number:'1.0-0' }}
-        </strong>
+       <div class="promo-box" *ngIf="product.discountPercentage">
+  <span class="promo-badge">
+    {{ product.discountPercentage | number:'1.0-0' }}% OFF
+  </span>
+  <span class="promo-text">{{ product.promotionName }}</span>
+</div>
+
+<div class="price-box">
+  <span class="old-price" *ngIf="product.originalPrice">
+    Antes ${{ product.originalPrice | number:'1.0-0' }}
+  </span>
+
+  <strong class="current-price">
+    Ahora ${{ product.price | number:'1.0-0' }}
+  </strong>
+</div>
+
+        <small class="promo-name" *ngIf="product.promotionName">
+          {{ product.promotionName }}
+        </small>
 
         <button
           type="button"

@@ -102,3 +102,41 @@
   background: #b88900;
   transform: translateY(-2px);
 }
+.promo-box {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0.5rem;
+}
+
+.promo-badge {
+  background: #111;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 900;
+  font-size: 0.8rem;
+}
+
+.promo-text {
+  color: #b88700;
+  font-weight: 800;
+  font-size: 0.85rem;
+}
+
+.price-box {
+  display: grid;
+  gap: 0.25rem;
+  margin: 0.5rem 0 1rem;
+}
+
+.old-price {
+  color: #8a8f98;
+  text-decoration: line-through;
+  font-weight: 700;
+}
+
+.current-price {
+  color: #111;
+  font-size: 1.25rem;
+}
