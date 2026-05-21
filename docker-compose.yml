@@ -1,84 +1,14 @@
 services:
-  postgres-db:
-    image: postgres:15
-    container_name: accesorios-db
-    restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - accesorios-network
-
   frontend:
     build: .
-    container_name: accesorios-frontend
+    container_name: accesorios-dm-frontend-prod
     restart: always
     ports:
       - "80:80"
-    depends_on:
-      - api-gateway
     networks:
-      - accesorios-network
-
-  inventory-service:
-    build:
-      context: ../../proyecto-dm/proyecto-dm/accesorios-dm-inventory-service
-    container_name: accesorios-inventory
-    restart: always
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-db:5432/${POSTGRES_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
-      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      SPRING_JPA_HIBERNATE_DDL_AUTO: none
-      SPRING_JPA_SHOW_SQL: "true"
-      SPRING_JPA_OPEN_IN_VIEW: "false"
-      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: inventario
-      SERVER_PORT: 8080
-    depends_on:
-      - postgres-db
-    networks:
-      - accesorios-network
-
-  payment-service:
-    build:
-      context: ../../proyecto-dm/proyecto-dm/accesorios-dm-payment-service
-    container_name: accesorios-payment
-    restart: always
-    environment:
-      PORT: 9000
-      DB_HOST: postgres-db
-      DB_PORT: 5432
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-      DB_SCHEMA: pago
-      NODE_ENV: development
-    depends_on:
-      - postgres-db
-    networks:
-      - accesorios-network
-
-  api-gateway:
-    build:
-      context: ../../proyecto-dm/proyecto-dm/accesorios-dm-api-gateway
-    container_name: accesorios-gateway
-    restart: always
-    ports:
-      - "8000:8000"
-    depends_on:
-      - inventory-service
-      - payment-service
-    networks:
-      - accesorios-network
-
-volumes:
-  postgres_data:
+      - accesorios-dm-net-prod
 
 networks:
-  accesorios-network:
-    driver: bridge
+  accesorios-dm-net-prod:
+    external: true
+    name: accesorios-dm-database_accesorios-network-prod

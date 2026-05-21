@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface AdminRole {
   id_rol: number;
@@ -17,7 +18,7 @@ export interface RoleRequest {
   providedIn: 'root'
 })
 export class AdminRolesService {
-  private readonly apiUrl = 'http://localhost:8889/api/v1/roles/';
+  private readonly apiUrl = `${environment.apiBaseUrl}/security/roles`;
 
   constructor(private readonly http: HttpClient) {}
 
@@ -34,19 +35,19 @@ export class AdminRolesService {
   }
 
   updateRole(id: number, role: Partial<RoleRequest>): Observable<AdminRole> {
-    return this.http.put<AdminRole>(`${this.apiUrl}${id}`, role, {
+    return this.http.put<AdminRole>(`${this.apiUrl}/${id}`, role, {
       headers: this.getHeaders()
     });
   }
 
   deleteRole(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}${id}`, {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, {
       headers: this.getHeaders()
     });
   }
 
   assignRoleToEmployee(employeeId: number, roleId: number): Observable<any> {
-    return this.http.patch(`${this.apiUrl}${employeeId}/rol/${roleId}`, {}, {
+    return this.http.patch(`${this.apiUrl}/${employeeId}/rol/${roleId}`, {}, {
       headers: this.getHeaders()
     });
   }
