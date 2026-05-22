@@ -1,0 +1,30 @@
+# CODEOWNERS — accesorios-dm-frontend
+#
+# IMPORTANTE: Crear los equipos en GitHub antes de activar require_code_owner_reviews:
+#   - @D-M-Accesorios/leads      → arquitectos / tech leads
+#   - @D-M-Accesorios/frontend   → desarrolladores frontend
+
+# Propietario por defecto
+*                                   @D-M-Accesorios/leads
+
+# Infraestructura
+Dockerfile                          @D-M-Accesorios/leads
+docker-compose.yml                  @D-M-Accesorios/leads
+
+# Dependencias Angular
+package.json                        @D-M-Accesorios/leads
+package-lock.json                   @D-M-Accesorios/leads
+
+# Configuración Angular y TypeScript
+angular.json                        @D-M-Accesorios/leads
+tsconfig*.json                      @D-M-Accesorios/leads
+
+# Variables de entorno de la app — URLs de API por ambiente
+src/environments/                   @D-M-Accesorios/leads @D-M-Accesorios/frontend
+
+# Workflows CI/CD
+.github/                            @D-M-Accesorios/leads
+
+# Código fuente Angular
+src/app/                            @D-M-Accesorios/frontend @D-M-Accesorios/leads
+src/                                @D-M-Accesorios/frontend @D-M-Accesorios/leads
